@@ -1,14 +1,7 @@
 {
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "context7",
-    "puppeteer",
-    "sequential-thinking",
-    "mcp-deepwiki"
-  ],
   "permissions": {
-    "allow": [
-      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --env-filter '\nif [ \"\"$GIT_AUTHOR_NAME\"\" = \"\"Alexis\"\" ] || [ \"\"$GIT_AUTHOR_NAME\"\" = \"\"Alexis Stefanopoulos\"\" ] || [ \"\"$GIT_AUTHOR_NAME\"\" = \"\"Alexios Stefanopoulos\"\" ]; then\n    export GIT_AUTHOR_NAME=\"\"AizenvoltPrime\"\"\n    export GIT_AUTHOR_EMAIL=\"\"$GIT_AUTHOR_EMAIL\"\"\nfi\nif [ \"\"$GIT_COMMITTER_NAME\"\" = \"\"Alexis\"\" ] || [ \"\"$GIT_COMMITTER_NAME\"\" = \"\"Alexis Stefanopoulos\"\" ] || [ \"\"$GIT_COMMITTER_NAME\"\" = \"\"Alexios Stefanopoulos\"\" ]; then\n    export GIT_COMMITTER_NAME=\"\"AizenvoltPrime\"\"\n    export GIT_COMMITTER_EMAIL=\"\"$GIT_COMMITTER_EMAIL\"\"\nfi\n' --tag-name-filter cat -- --branches --tags)"
-    ]
-  }
+    "allow": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["context7", "puppeteer", "sequential-thinking", "mcp-deepwiki"]
 }
