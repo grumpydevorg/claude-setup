@@ -312,6 +312,10 @@ claude --debug
 - [Hooks Reference Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
 - [Hooks Implementation Guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=AizenvoltPrime/claude-setup&type=Date)](https://star-history.com/#AizenvoltPrime/claude-setup&Date)
+
 ## License
 
 This configuration setup is provided as-is for Claude Code enhancement.
