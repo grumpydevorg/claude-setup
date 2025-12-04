@@ -1,14 +1,15 @@
 ---
 name: investigator
-description: Expert code investigator that tracks down related code to the problem
-tools: Task, Bash, Glob, Grep, LS, ExitPlanMode, Read, Edit, MultiEdit, Write, NotebookRead, NotebookEdit, WebFetch, TodoWrite, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, ListMcpResourcesTool, ReadMcpResourceTool, mcp__sequential-thinking__sequentialthinking, mcp__ide__executeCode, mcp__ide__getDiagnostics
+description: Code investigator that finds all files related to a problem
+tools: Glob, Grep, Read, Bash, mcp__sequential-thinking__sequentialthinking
 color: cyan
 ---
 
-You must ultrathink and use sequential thinking to investigate all codebase files and find the files related to the problem the user has and after your investigation ends create a "INVESTIGATION_REPORT.md" inside the claude-instance directory that gets automatically created for this task session.
+Follow the methodology in `.claude/skills/investigate/SKILL.md`.
 
-IMPORTANT: You MUST ALWAYS return the following response format and nothing else:
+Output the investigation report to the claude-instance directory if a path is provided.
 
+Return format:
 ```
 ## Report Location:
 The comprehensive investigation report has been saved to:

@@ -10,36 +10,77 @@ description: >
 
 Creates well-structured skills following Anthropic's best practices.
 
-## Architecture Principles (DRY)
-
-This project uses a layered architecture:
+## Architecture: Skills as Single Source of Truth
 
 ```
-agents/   → Core logic (single source of truth)
-skills/   → Auto-triggered wrappers (thin, delegate to agents)
-commands/ → Explicit orchestration (chain multiple agents)
+skills/   → FULL methodology and expertise (single source of truth)
+agents/   → THIN runtime config (tools, color) + pointer to skill
+commands/ → Explicit orchestration (chains multiple agents)
 ```
 
-**Before creating a skill, decide:**
-- Does this need a new **agent** (reusable expertise)?
-- Does this need a new **skill** (auto-trigger for existing agent)?
-- Does this need a new **command** (explicit multi-step workflow)?
+### How It Works
+
+1. **Skills** contain ALL the expertise - the actual methodology for HOW to do something
+2. **Agents** are thin wrappers that specify tools/permissions and reference a skill
+3. **Commands** orchestrate multiple agents in sequence
+
+### Example
+
+**Skill** (`.claude/skills/investigate/SKILL.md`) - 150 lines of methodology:
+```yaml
+---
+name: investigate
+description: Deep codebase investigation...
+---
+# Phase 1: Problem Decomposition
+[Full methodology here...]
+```
+
+**Agent** (`.claude/agents/investigator.md`) - 10 lines:
+```yaml
+---
+name: investigator
+tools: Glob, Grep, Read, Bash
+color: cyan
+---
+Follow the methodology in `.claude/skills/investigate/SKILL.md`.
+```
+
+## Decision Tree
+
+When adding a new capability:
+
+```
+Need new capability?
+│
+├─ Is it a methodology/expertise?
+│  └─ YES → Create a SKILL (with full methodology)
+│           └─ Need it as subagent? → Also create thin AGENT
+│
+├─ Need restricted tool access or isolated execution?
+│  └─ YES → Create AGENT referencing existing skill
+│
+└─ Need explicit multi-step workflow?
+   └─ YES → Create COMMAND that orchestrates agents
+```
 
 ## Skill Creation Process
 
-### Step 1: Gather Requirements
-Ask the user:
-- What capability should this provide?
-- When should it auto-trigger?
-- Does an existing agent handle this? (check `.claude/agents/`)
+### Step 1: Define the Methodology
+
+Ask:
+- What problem does this solve?
+- What are the STEPS to solve it?
+- What are the edge cases?
+- What output format is expected?
 
 ### Step 2: Create Skill Structure
 
 ```
 .claude/skills/<skill-name>/
-├── SKILL.md          # Required: frontmatter + instructions
-├── references/       # Optional: documentation to load as-needed
-└── scripts/          # Optional: helper scripts
+├── SKILL.md              # Required: full methodology
+└── references/           # Optional: extended docs, patterns
+    └── patterns.md
 ```
 
 ### Step 3: Write SKILL.md
@@ -48,67 +89,130 @@ Ask the user:
 ---
 name: lowercase-with-hyphens
 description: >
-  Brief description of what it does.
-  Use when: (1) trigger condition, (2) trigger condition, (3) trigger condition.
-  Delegates to X agent if applicable.
+  [What it does - one line].
+  Use when: (1) trigger, (2) trigger, (3) trigger.
 ---
 
-# Skill Title
+# [Skill Title] Methodology
 
-Brief explanation of purpose.
+[One line purpose]
 
-## Delegation (if wrapping an agent)
+## Phase 1: [First Phase Name]
 
-This skill delegates to the **agent-name** agent in `.claude/agents/agent-name.md`.
+[Detailed instructions for this phase]
 
-## Instructions (if standalone)
+1. **Step one**
+   - Sub-detail
+   - Sub-detail
 
-1. Step one
-2. Step two
-3. Step three
+2. **Step two**
+   [...]
+
+## Phase 2: [Second Phase Name]
+
+[Continue with full methodology...]
+
+## Output Format
+
+[Template for expected output]
+
+## Guidelines
+
+- [Key principle 1]
+- [Key principle 2]
+```
+
+### Step 4: Create Thin Agent (if needed)
+
+Only if the skill needs to run as a subagent:
+
+```yaml
+---
+name: skill-name-doer
+description: [Brief description]
+tools: [Minimal required tools]
+color: [cyan/yellow/green/magenta]
+---
+
+Follow the methodology in `.claude/skills/<skill-name>/SKILL.md`.
+
+[Any agent-specific output format requirements]
 ```
 
 ## Best Practices
 
-### Description Field (Critical)
-- Include BOTH what it does AND when to use it
-- All trigger conditions go here (body only loads after triggering)
-- Max 1024 characters, be specific
+### Description Field (Critical for Discovery)
+- Include BOTH what and when
+- All trigger conditions here (body loads AFTER triggering)
+- Max 1024 characters
+- Be specific: "Use when user asks about code quality" not "Use for code"
 
-### Body Guidelines
-- Keep under 500 lines
-- Use imperative form ("Run X", not "Running X")
-- Reference agents instead of duplicating logic
-- Include "when to use this vs command" guidance
-
-### Progressive Disclosure
-- Core workflow in SKILL.md
-- Variant details in references/
-- Keep references one level deep
+### Methodology Content
+- **Be comprehensive** - Include the full HOW
+- **Use phases** - Break into logical steps
+- **Include examples** - Show expected inputs/outputs
+- **Define output format** - Template for results
+- Under 500 lines (use references/ for extended content)
 
 ### What NOT to Include
 - README.md, CHANGELOG.md (not functional)
-- Duplicated agent logic
-- Verbose explanations (assume Claude is capable)
+- Vague instructions like "think carefully"
+- Duplicate content (reference other skills if needed)
 
-## Template
+## Templates
 
-Create skill at `.claude/skills/<name>/SKILL.md`:
+### Standalone Skill (no agent needed)
 
 ```yaml
 ---
-name: <skill-name>
+name: my-skill
 description: >
-  <What it does>.
-  Use when: (1) <condition>, (2) <condition>.
+  [Does X]. Use when: (1) condition, (2) condition.
 ---
 
-# <Skill Title>
+# [Skill Name] Methodology
 
-<Brief purpose>
+## Purpose
+[What this accomplishes]
 
-## Instructions
+## Process
 
-1. <Step>
-2. <Step>
+### Phase 1: [Name]
+[Instructions...]
+
+### Phase 2: [Name]
+[Instructions...]
+
+## Output Format
+[Template...]
+
+## Guidelines
+- [Guideline 1]
+- [Guideline 2]
+```
+
+### Skill + Agent Pair
+
+**Skill:**
+```yaml
+---
+name: my-skill
+description: >
+  [Does X]. Use when: (1) condition, (2) condition.
+---
+
+# [Full methodology - see above]
+```
+
+**Agent:**
+```yaml
+---
+name: my-skill-agent
+description: [Brief - runs my-skill as subagent]
+tools: [Minimal tools]
+color: cyan
+---
+
+Follow `.claude/skills/my-skill/SKILL.md`.
+[Output format if different from skill default]
 ```

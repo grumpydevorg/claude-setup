@@ -85,28 +85,20 @@ chmod +x .claude/hooks/task_medium_prep_hook.py
 - **`/task_medium`**: Advanced problem-solving with automated directory management
 - **`/task_easy`**: Simplified task workflow for lighter needs
 
-### 🧠 Skills (Auto-Invoked)
-Skills trigger automatically based on context - no explicit command needed:
-- **`investigate`**: Auto-triggers for bug analysis, "where is X" questions → delegates to investigator agent
-- **`trace-flow`**: Auto-triggers for "how does X work" questions → delegates to code-flow-mapper agent
-- **`review-quality`**: Auto-triggers for code quality questions → delegates to code-reviewer agent
-- **`skill-creator`**: Auto-triggers when creating new skills → follows Anthropic best practices
+### 🧠 Skills (Full Methodology - Single Source of Truth)
+Skills contain complete methodologies and auto-trigger based on context:
+- **`investigate`**: 5-phase investigation methodology (decomposition → discovery → mapping → expansion → impact)
+- **`trace-flow`**: Execution/data flow tracing (entry points → downstream → upstream → transformations)
+- **`review-quality`**: Comprehensive review checklist (correctness, security, maintainability, performance)
+- **`plan-implementation`**: Planning methodology (synthesis → criteria → approach → breakdown → risks)
+- **`skill-creator`**: Meta-skill for creating new skills following Anthropic best practices
 
-### 🤖 Custom Agents
-- **`investigator`**: Expert code investigator that tracks down related code to problems
-  - Uses sequential thinking and advanced search tools
-  - Generates comprehensive INVESTIGATION_REPORT.md files
-  - Integrated with task_medium workflow
-- **`code-flow-mapper`**: Expert code flow mapper that traces execution paths and file interconnections
-  - Maps code flow and analyzes file relationships
-  - Generates FLOW_REPORT.md files
-- **`planner`**: Expert planner that takes into account investigation and flow analysis reports
-  - Creates detailed plans that solve all problems
-  - Generates comprehensive PLAN.md files
-- **`code-reviewer`**: Senior code review specialist for quality assurance
-  - Reviews changes for quality, security, and maintainability
-  - Provides prioritized feedback (critical, warnings, suggestions)
-  - Checks for best practices and potential issues
+### 🤖 Agents (Thin Runtime Config)
+Agents are lightweight wrappers that reference skills for their methodology:
+- **`investigator`**: Runs investigate skill with restricted tools → INVESTIGATION_REPORT.md
+- **`code-flow-mapper`**: Runs trace-flow skill → FLOW_REPORT.md
+- **`planner`**: Runs plan-implementation skill → PLAN.md
+- **`code-reviewer`**: Runs review-quality skill with prioritized feedback
 
 ### 🔌 MCP Servers
 - **Context7**: Library documentation and code context
@@ -212,18 +204,19 @@ Lightweight task workflow for simpler problem-solving needs.
 claude-setup/
 ├── .claude/
 │   ├── settings.json          # Permissions and hook configuration
-│   ├── agents/                # Core logic (single source of truth)
-│   │   ├── investigator.md    # Code investigation expertise
-│   │   ├── code-flow-mapper.md # Code flow tracing expertise
-│   │   ├── planner.md         # Planning expertise
-│   │   └── code-reviewer.md   # Code review expertise
-│   ├── skills/                # Auto-triggered capabilities (thin wrappers)
-│   │   ├── investigate/       # → delegates to investigator agent
-│   │   ├── trace-flow/        # → delegates to code-flow-mapper agent
-│   │   ├── review-quality/    # → delegates to code-reviewer agent
+│   ├── skills/                # FULL methodology (single source of truth)
+│   │   ├── investigate/       # 5-phase investigation methodology
+│   │   ├── trace-flow/        # Code flow tracing methodology
+│   │   ├── review-quality/    # Comprehensive review checklist
+│   │   ├── plan-implementation/ # Planning methodology
 │   │   └── skill-creator/     # Meta-skill for creating skills
+│   ├── agents/                # THIN runtime config (tools + skill pointer)
+│   │   ├── investigator.md    # → uses investigate skill
+│   │   ├── code-flow-mapper.md # → uses trace-flow skill
+│   │   ├── planner.md         # → uses plan-implementation skill
+│   │   └── code-reviewer.md   # → uses review-quality skill
 │   ├── commands/              # Explicit orchestration
-│   │   ├── task_medium.md     # Chains: investigate → flow → plan
+│   │   ├── task_medium.md     # Chains: investigator → flow-mapper → planner
 │   │   ├── task_easy.md       # Simple task workflow
 │   │   ├── code-review.md     # Explicit review trigger
 │   │   └── commit.md          # Commit workflow
@@ -234,7 +227,7 @@ claude-setup/
 └── README.md
 ```
 
-### Architecture: DRY Principle
+### Architecture: Skills as Single Source of Truth
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -245,19 +238,26 @@ claude-setup/
         ▼                                           ▼
 ┌───────────────┐                         ┌─────────────────┐
 │    Skills     │  Auto-triggered         │    Commands     │  User-invoked
-│ (thin wrapper)│  based on context       │ (orchestration) │  with /command
+│(methodology)  │  based on context       │ (orchestration) │  with /command
 └───────┬───────┘                         └────────┬────────┘
         │                                          │
-        └──────────────────┬───────────────────────┘
-                           ▼
-              ┌────────────────────────┐
-              │        Agents          │  Single source of truth
-              │   (core expertise)     │  for all logic
-              └────────────────────────┘
+        │ ┌────────────────────────────────────────┘
+        │ │
+        ▼ ▼
+┌────────────────────────┐
+│        Agents          │  Thin wrappers
+│  (tools + skill ref)   │  for subagent execution
+└────────────────────────┘
+        │
+        ▼
+┌────────────────────────┐
+│        Skills          │  ← Agents READ skill methodology
+│  (full methodology)    │
+└────────────────────────┘
 ```
 
-- **Agents**: Contain the actual expertise (investigation methodology, review checklist, etc.)
-- **Skills**: Auto-trigger conditions that delegate to agents
+- **Skills**: Single source of truth for HOW to do things (full methodology)
+- **Agents**: Thin runtime config (tools, color) + pointer to skill
 - **Commands**: Explicit multi-agent orchestration (e.g., /task_medium chains 3 agents)
 
 ### Settings Configuration
@@ -345,21 +345,39 @@ The easiest way: just ask Claude "create a skill for X" - the **skill-creator** 
 
 Manual creation:
 1. Create directory: `.claude/skills/your-skill/`
-2. Create `SKILL.md` with YAML frontmatter:
+2. Create `SKILL.md` with YAML frontmatter and **full methodology**:
 ```yaml
 ---
 name: your-skill
 description: >
   What it does. Use when: (1) condition, (2) condition.
 ---
-# Instructions here
+
+# Your Skill Methodology
+
+## Phase 1: [First Phase]
+[Detailed instructions...]
+
+## Phase 2: [Second Phase]
+[Detailed instructions...]
+
+## Output Format
+[Expected output template...]
 ```
-3. If wrapping an agent, add delegation instructions
-4. Test by describing tasks that should trigger it
+3. If needed as subagent, create thin agent in `.claude/agents/`:
+```yaml
+---
+name: your-skill-agent
+tools: [required tools]
+color: cyan
+---
+Follow methodology in `.claude/skills/your-skill/SKILL.md`.
+```
 
 **Best Practices:**
+- Skills contain the **full methodology** (HOW to do it)
+- Agents are **thin** (tools + pointer to skill)
 - Put ALL trigger conditions in the `description` field
-- Keep skills thin - delegate to agents for complex logic
 - Under 500 lines in SKILL.md body
 
 **Resources:**
