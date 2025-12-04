@@ -79,11 +79,18 @@ chmod +x .claude/hooks/task_medium_prep_hook.py
 
 ## Features
 
-### 🎯 Custom Commands
+### 🎯 Custom Commands (User-Invoked)
 - **`/commit`**: Intelligent commit workflow with conventional standards
 - **`/code-review`**: Reviews uncommitted changes before committing
 - **`/task_medium`**: Advanced problem-solving with automated directory management
 - **`/task_easy`**: Simplified task workflow for lighter needs
+
+### 🧠 Skills (Auto-Invoked)
+Skills trigger automatically based on context - no explicit command needed:
+- **`investigate`**: Auto-triggers for bug analysis, "where is X" questions → delegates to investigator agent
+- **`trace-flow`**: Auto-triggers for "how does X work" questions → delegates to code-flow-mapper agent
+- **`review-quality`**: Auto-triggers for code quality questions → delegates to code-reviewer agent
+- **`skill-creator`**: Auto-triggers when creating new skills → follows Anthropic best practices
 
 ### 🤖 Custom Agents
 - **`investigator`**: Expert code investigator that tracks down related code to problems
@@ -205,22 +212,53 @@ Lightweight task workflow for simpler problem-solving needs.
 claude-setup/
 ├── .claude/
 │   ├── settings.json          # Permissions and hook configuration
-│   ├── agents/
-│   │   ├── investigator.md    # Code investigation agent
-│   │   ├── code-flow-mapper.md # Code flow mapping agent
-│   │   ├── planner.md         # Planning agent
-│   │   └── code-reviewer.md   # Code review specialist
-│   ├── hooks/
-│   │   └── task_medium_prep_hook.py  # Auto directory creation
-│   └── commands/
-│       ├── task_medium.md     # Advanced task workflow
-│       ├── task_easy.md       # Simple task workflow
-│       ├── code-review.md     # Code review workflow
-│       └── commit.md          # Commit workflow
+│   ├── agents/                # Core logic (single source of truth)
+│   │   ├── investigator.md    # Code investigation expertise
+│   │   ├── code-flow-mapper.md # Code flow tracing expertise
+│   │   ├── planner.md         # Planning expertise
+│   │   └── code-reviewer.md   # Code review expertise
+│   ├── skills/                # Auto-triggered capabilities (thin wrappers)
+│   │   ├── investigate/       # → delegates to investigator agent
+│   │   ├── trace-flow/        # → delegates to code-flow-mapper agent
+│   │   ├── review-quality/    # → delegates to code-reviewer agent
+│   │   └── skill-creator/     # Meta-skill for creating skills
+│   ├── commands/              # Explicit orchestration
+│   │   ├── task_medium.md     # Chains: investigate → flow → plan
+│   │   ├── task_easy.md       # Simple task workflow
+│   │   ├── code-review.md     # Explicit review trigger
+│   │   └── commit.md          # Commit workflow
+│   └── hooks/
+│       └── task_medium_prep_hook.py  # Auto directory creation
 ├── .mcp.json                  # MCP server configuration
 ├── claude-code-storage/       # Auto-generated task directories
 └── README.md
 ```
+
+### Architecture: DRY Principle
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     User Request                            │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┴─────────────────────┐
+        ▼                                           ▼
+┌───────────────┐                         ┌─────────────────┐
+│    Skills     │  Auto-triggered         │    Commands     │  User-invoked
+│ (thin wrapper)│  based on context       │ (orchestration) │  with /command
+└───────┬───────┘                         └────────┬────────┘
+        │                                          │
+        └──────────────────┬───────────────────────┘
+                           ▼
+              ┌────────────────────────┐
+              │        Agents          │  Single source of truth
+              │   (core expertise)     │  for all logic
+              └────────────────────────┘
+```
+
+- **Agents**: Contain the actual expertise (investigation methodology, review checklist, etc.)
+- **Skills**: Auto-trigger conditions that delegate to agents
+- **Commands**: Explicit multi-agent orchestration (e.g., /task_medium chains 3 agents)
 
 ### Settings Configuration
 
@@ -300,6 +338,33 @@ claude --debug
 2. Create a feature branch: `git checkout -b feature-name`
 3. Make your changes and test thoroughly
 4. Submit a pull request with detailed description
+
+### Adding Custom Skills
+
+The easiest way: just ask Claude "create a skill for X" - the **skill-creator** skill auto-triggers.
+
+Manual creation:
+1. Create directory: `.claude/skills/your-skill/`
+2. Create `SKILL.md` with YAML frontmatter:
+```yaml
+---
+name: your-skill
+description: >
+  What it does. Use when: (1) condition, (2) condition.
+---
+# Instructions here
+```
+3. If wrapping an agent, add delegation instructions
+4. Test by describing tasks that should trigger it
+
+**Best Practices:**
+- Put ALL trigger conditions in the `description` field
+- Keep skills thin - delegate to agents for complex logic
+- Under 500 lines in SKILL.md body
+
+**Resources:**
+- [Agent Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
+- [Anthropic Skills Repository](https://github.com/anthropics/skills)
 
 ### Adding Custom Hooks
 
