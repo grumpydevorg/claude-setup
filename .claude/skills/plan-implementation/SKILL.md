@@ -72,15 +72,56 @@ Select approach based on:
 - Risk level
 - Reversibility
 
-## Phase 4: Break Down Into Steps
+## Phase 4: Decompose & Break Down
 
-Create ordered steps following these rules:
+### Decomposition Strategies
+
+Choose based on the problem:
+
+**Functional** - Break by what the system does:
+```
+User Auth → Login flow | Logout flow | Password reset | Session mgmt
+```
+
+**Layer** - Break by architectural layer:
+```
+Feature → Database | API | Business logic | Frontend | Tests
+```
+
+**Workflow** - Break by sequence:
+```
+Feature → 1. Design → 2. Storage → 3. API → 4. UI → 5. Test
+```
+
+**Risk** - Break by uncertainty:
+```
+Feature → Spike (HIGH) | Core (LOW) | Extension (MED) | Polish (LOW)
+```
+
+### Sizing Guide
+
+| Size | Scope | Files | Action |
+|------|-------|-------|--------|
+| XS | Single function | 1 | Do it |
+| S | Single feature | 1-2 | Do it |
+| M | Cross-file feature | 2-4 | Do it |
+| L | Many files | 4-8 | Careful |
+| **XL** | **Too big** | **8+** | **Decompose further** |
+
+**Rule: If size is XL, decompose further before proceeding.**
 
 ### Ordering Rules
 1. **Types/interfaces first** - Define contracts before implementations
 2. **Utilities before consumers** - Build blocks before using them
 3. **Core logic before integration** - Get it working, then wire it up
 4. **Tests alongside or after** - Verify each piece
+
+### Dependency Mapping
+
+Identify:
+- **Critical path** - Longest dependency chain
+- **Parallelizable** - Tasks with no dependencies between them
+- **Bottlenecks** - Many tasks depend on one
 
 ### Step Granularity
 Each step should:
