@@ -5,11 +5,23 @@ description: >
   Use when: (1) user needs a plan before coding, (2) complex multi-file changes,
   (3) user asks "how should I implement X", (4) after investigation/flow analysis,
   (5) architectural decisions needed, (6) breaking down large tasks.
+  EVOLVING skill - reads CONTEXT.yaml for project-specific patterns.
 ---
 
 # Implementation Planning Methodology
 
 Systematic process for creating actionable implementation plans.
+
+## Pre-Phase: Load Context
+
+If `CONTEXT.yaml` exists in this skill folder:
+1. Load **core** patterns (always relevant)
+2. Load **domain** patterns matching the problem area
+3. Use accumulated knowledge:
+   - Past estimation accuracy → Calibrate new estimates
+   - Successful patterns → Reuse proven approaches
+   - Failed patterns → Avoid known pitfalls
+   - Risk history → Anticipate common risks
 
 ## Planning Principles
 
@@ -218,3 +230,41 @@ Structure the plan as:
 - Some details emerge during implementation
 - Plan enough to start confidently
 - Allow for iteration
+
+## Phase 7: Update Memory
+
+After plan execution (success or failure), update CONTEXT.yaml:
+
+1. **Record estimation accuracy**
+   - Planned vs actual complexity
+   - What caused divergence
+   - Calibration adjustments
+
+2. **Capture patterns**
+   - Approaches that worked well → successful_patterns
+   - Approaches that failed → failed_patterns
+   - New risks discovered → risks
+
+3. **Link to evidence**
+   - Reference specific commits or files
+   - Include confidence level
+
+```yaml
+# Example CONTEXT.yaml update
+core:
+  - id: pattern-001
+    type: pattern
+    content: "Always create types before implementations in TypeScript"
+    confidence: 0.9
+    evidence: ["plan-auth-feature", "plan-api-refactor"]
+
+domain:
+  auth:
+    - id: auth-risk-001
+      type: risk
+      content: "Session migration requires downtime - plan accordingly"
+      confidence: 0.85
+      evidence: ["incident-2024-03"]
+```
+
+## Guidelines

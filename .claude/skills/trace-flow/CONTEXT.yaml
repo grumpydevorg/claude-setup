@@ -1,0 +1,58 @@
+# Trace Flow Context - Evolving Memory
+# Stores known flows, entry points, and architectural patterns
+
+version: 1
+meta:
+  created: 2024-12-04
+  last_updated: 2024-12-04
+  skill: trace-flow
+  total_entries: 0
+  prune_threshold: 50
+
+# ═══════════════════════════════════════════════════════════════════
+# CORE: Known entry points and common flows (always loaded)
+# ═══════════════════════════════════════════════════════════════════
+core: []
+  # Example:
+  # - id: c1
+  #   type: entry_point
+  #   content: "API routes defined in src/routes/index.ts"
+  #   confidence: 0.95
+
+# ═══════════════════════════════════════════════════════════════════
+# DOMAIN: Architecture patterns by area
+# ═══════════════════════════════════════════════════════════════════
+domain:
+  api: []
+  database: []
+  auth: []
+  events: []
+  background: []
+
+# ═══════════════════════════════════════════════════════════════════
+# FLOWS: Documented execution flows
+# ═══════════════════════════════════════════════════════════════════
+flows: []
+  # Example:
+  # - id: f1
+  #   name: "User login flow"
+  #   entry: "POST /api/auth/login"
+  #   steps: ["AuthController.login", "AuthService.validate", "SessionService.create"]
+  #   side_effects: ["DB write: sessions", "Cookie: set"]
+  #   confidence: 0.9
+
+# ═══════════════════════════════════════════════════════════════════
+# ARCHIVE: Historical flow traces
+# ═══════════════════════════════════════════════════════════════════
+archive: []
+
+# ═══════════════════════════════════════════════════════════════════
+# RELATIONS
+# ═══════════════════════════════════════════════════════════════════
+relations: []
+
+lifecycle:
+  last_consolidation: null
+  consolidation_triggers:
+    total_entries_threshold: 50
+    days_since_consolidation: 14

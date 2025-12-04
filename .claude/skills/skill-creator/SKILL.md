@@ -139,6 +139,84 @@ Follow the methodology in `.claude/skills/<skill-name>/SKILL.md`.
 [Any agent-specific output format requirements]
 ```
 
+## Evolving vs Static Skills
+
+Not all skills need memory. Choose based on the skill's nature:
+
+### Static Skills (No Memory)
+Universal methodologies that don't change per project:
+- **skill-creator**: How to create skills is universal
+- **review-quality**: Code review checklist is universal
+- **decision-making**: Decision framework is universal
+- **hypothesis-testing**: Scientific method is universal
+- **verification**: Testing methodology is universal
+- **task-decomposition**: Breaking down work is universal
+
+Structure:
+```
+.claude/skills/static-skill/
+└── SKILL.md              # Methodology only
+```
+
+### Evolving Skills (With Memory)
+Project-specific skills that learn and adapt:
+- **investigate**: Learns project structure, common patterns
+- **trace-flow**: Learns architectural patterns, data flows
+- **plan-implementation**: Learns estimation accuracy, risk patterns
+- **memory-management**: Meta-skill for managing memory
+
+Structure:
+```
+.claude/skills/evolving-skill/
+├── SKILL.md              # Methodology + Pre-Phase: Load Context
+└── CONTEXT.yaml          # Tiered memory storage
+```
+
+### CONTEXT.yaml Structure
+
+```yaml
+version: 1
+meta:
+  skill: investigate
+  total_entries: 15
+  prune_threshold: 50
+
+core:           # Always loaded - highest value patterns
+  - id: core-001
+    type: pattern
+    content: "Entry points are in src/routes/"
+    confidence: 0.95
+    evidence: ["investigation-auth", "investigation-api"]
+
+domain:         # Loaded when context matches
+  auth:
+    - id: auth-001
+      type: learning
+      content: "Auth middleware in src/middleware/auth.ts"
+      confidence: 0.9
+
+archive:        # Searchable but not auto-loaded
+  - id: arch-001
+    type: gotcha
+    content: "Legacy code in /old - do not use"
+    archived_from: core
+    reason: "Rarely relevant"
+
+relations:      # Links between entries
+  - from: core-001
+    to: auth-001
+    type: "contains"
+```
+
+### Memory Lifecycle
+
+1. **Add**: New patterns discovered during skill execution
+2. **Update**: Increase/decrease confidence based on validation
+3. **Promote**: Low-tier entries that prove valuable → higher tier
+4. **Demote**: Entries that prove less valuable → lower tier
+5. **Prune**: Remove low-confidence, unused entries
+6. **Consolidate**: Merge related entries, extract abstractions
+
 ## Best Practices
 
 ### Description Field (Critical for Discovery)
@@ -146,6 +224,7 @@ Follow the methodology in `.claude/skills/<skill-name>/SKILL.md`.
 - All trigger conditions here (body loads AFTER triggering)
 - Max 1024 characters
 - Be specific: "Use when user asks about code quality" not "Use for code"
+- For evolving skills, include "EVOLVING skill" in description
 
 ### Methodology Content
 - **Be comprehensive** - Include the full HOW

@@ -86,11 +86,22 @@ chmod +x .claude/hooks/task_medium_prep_hook.py
 - **`/task_easy`**: Simplified task workflow for lighter needs
 
 ### 🧠 Skills (Full Methodology - Single Source of Truth)
-Skills contain complete methodologies and auto-trigger based on context:
-- **`investigate`**: 5-phase investigation methodology (decomposition → discovery → mapping → expansion → impact)
-- **`trace-flow`**: Execution/data flow tracing (entry points → downstream → upstream → transformations)
+Skills contain complete methodologies and auto-trigger based on context.
+
+#### Evolving Skills (With Memory - CONTEXT.yaml)
+These skills learn and adapt to your specific project:
+- **`investigate`**: Scientific investigation using hypothesis testing. Learns project structure, common patterns.
+- **`trace-flow`**: Execution/data flow tracing with verification phase. Learns architectural patterns.
+- **`plan-implementation`**: Planning with validation checkpoints. Learns estimation accuracy, risk patterns.
+- **`memory-management`**: Meta-skill for managing CONTEXT.yaml lifecycle across evolving skills.
+
+#### Static Skills (Universal Methodology)
+These skills use universal methods that don't change per project:
+- **`task-decomposition`**: Systematic task breakdown (functional, layer, workflow, risk-based strategies)
+- **`hypothesis-testing`**: Scientific debugging method (Observe → Hypothesize → Predict → Test → Analyze)
+- **`decision-making`**: Technical choice framework with evaluation matrices and ADR format
+- **`verification`**: Confirm changes work (unit, integration, system, regression levels)
 - **`review-quality`**: Comprehensive review checklist (correctness, security, maintainability, performance)
-- **`plan-implementation`**: Planning methodology (synthesis → criteria → approach → breakdown → risks)
 - **`skill-creator`**: Meta-skill for creating new skills following Anthropic best practices
 
 ### 🤖 Agents (Thin Runtime Config)
@@ -205,10 +216,21 @@ claude-setup/
 ├── .claude/
 │   ├── settings.json          # Permissions and hook configuration
 │   ├── skills/                # FULL methodology (single source of truth)
-│   │   ├── investigate/       # 5-phase investigation methodology
-│   │   ├── trace-flow/        # Code flow tracing methodology
+│   │   ├── investigate/       # EVOLVING - Scientific investigation
+│   │   │   ├── SKILL.md       # Hypothesis-testing methodology
+│   │   │   └── CONTEXT.yaml   # Project-specific patterns learned
+│   │   ├── trace-flow/        # EVOLVING - Code flow tracing
+│   │   │   ├── SKILL.md       # Flow tracing + verification
+│   │   │   └── CONTEXT.yaml   # Architectural patterns learned
+│   │   ├── plan-implementation/ # EVOLVING - Implementation planning
+│   │   │   ├── SKILL.md       # Planning + validation checkpoints
+│   │   │   └── CONTEXT.yaml   # Estimation calibration, risk patterns
+│   │   ├── memory-management/ # Meta-skill for CONTEXT.yaml lifecycle
+│   │   ├── task-decomposition/ # Systematic task breakdown
+│   │   ├── hypothesis-testing/ # Scientific debugging method
+│   │   ├── decision-making/   # Technical choice framework
+│   │   ├── verification/      # Confirm changes work
 │   │   ├── review-quality/    # Comprehensive review checklist
-│   │   ├── plan-implementation/ # Planning methodology
 │   │   └── skill-creator/     # Meta-skill for creating skills
 │   ├── agents/                # THIN runtime config (tools + skill pointer)
 │   │   ├── investigator.md    # → uses investigate skill
@@ -259,6 +281,38 @@ claude-setup/
 - **Skills**: Single source of truth for HOW to do things (full methodology)
 - **Agents**: Thin runtime config (tools, color) + pointer to skill
 - **Commands**: Explicit multi-agent orchestration (e.g., /task_medium chains 3 agents)
+
+### Memory Architecture (CONTEXT.yaml)
+
+Evolving skills use a tiered memory system stored in CONTEXT.yaml:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CONTEXT.yaml                              │
+├─────────────────────────────────────────────────────────────┤
+│  core:     ← Always loaded (highest value patterns)         │
+│    - "Entry points in src/routes/"                          │
+│    - "Tests use Jest + testing-library"                     │
+├─────────────────────────────────────────────────────────────┤
+│  domain:   ← Loaded when context matches                    │
+│    auth:                                                     │
+│      - "Auth middleware in src/middleware/"                 │
+│    database:                                                 │
+│      - "Prisma schema in prisma/schema.prisma"             │
+├─────────────────────────────────────────────────────────────┤
+│  archive:  ← Searchable but not auto-loaded                 │
+│    - "Legacy /old folder - rarely relevant"                 │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Entry Types:**
+- `pattern`: Recurring code structure or architectural convention
+- `learning`: Discovery about how something works
+- `gotcha`: Non-obvious behavior or common mistake
+- `decision`: Past technical decision with rationale
+- `flow`: Documented execution path
+
+**Memory Lifecycle:** Add → Update (confidence) → Promote/Demote → Prune → Consolidate
 
 ### Settings Configuration
 

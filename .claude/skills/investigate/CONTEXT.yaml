@@ -1,0 +1,69 @@
+# Investigation Context - Evolving Memory
+# This file stores project-specific knowledge accumulated during investigations
+
+version: 1
+meta:
+  created: 2024-12-04
+  last_updated: 2024-12-04
+  skill: investigate
+  total_entries: 0
+  prune_threshold: 50
+
+# ═══════════════════════════════════════════════════════════════════
+# CORE: Always loaded - high confidence, frequently used patterns
+# ═══════════════════════════════════════════════════════════════════
+core: []
+  # Example:
+  # - id: c1
+  #   type: pattern
+  #   domain: [auth]
+  #   content: "Authentication uses JWT tokens stored in httpOnly cookies"
+  #   confidence: 0.95
+  #   evidence: ["src/auth/middleware.ts:45"]
+  #   created: 2024-12-04
+  #   last_used: 2024-12-04
+  #   use_count: 0
+
+# ═══════════════════════════════════════════════════════════════════
+# DOMAIN: Loaded when domain matches current investigation
+# ═══════════════════════════════════════════════════════════════════
+domain:
+  # Organize by domain area
+  auth: []
+  database: []
+  api: []
+  frontend: []
+  testing: []
+  config: []
+
+# ═══════════════════════════════════════════════════════════════════
+# ARCHIVE: Searchable but not auto-loaded
+# ═══════════════════════════════════════════════════════════════════
+archive: []
+  # Example:
+  # - id: a1
+  #   type: decision
+  #   content: "Chose Redis for session storage"
+  #   rationale: "Need distributed sessions across instances"
+  #   date: 2024-12-04
+  #   confidence: 0.7
+  #   use_count: 1
+
+# ═══════════════════════════════════════════════════════════════════
+# RELATIONS: Connections between entries
+# ═══════════════════════════════════════════════════════════════════
+relations: []
+  # Example:
+  # - from: c1
+  #   to: a1
+  #   type: implements  # c1 implements decision a1
+
+# ═══════════════════════════════════════════════════════════════════
+# LIFECYCLE: Consolidation tracking
+# ═══════════════════════════════════════════════════════════════════
+lifecycle:
+  last_consolidation: null
+  consolidation_triggers:
+    total_entries_threshold: 50
+    archive_size_threshold: 30
+    days_since_consolidation: 14

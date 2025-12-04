@@ -1,143 +1,120 @@
 ---
 name: investigate
 description: >
-  Deep codebase investigation to find all files related to a problem, bug, or feature.
+  Deep codebase investigation using scientific method to find all files related to a problem.
   Use when: (1) user describes a bug or issue, (2) user asks "where is X handled",
-  (3) user wants to implement a feature touching unknown files, (4) understanding code relationships,
-  (5) before making changes that might have wide impact.
+  (3) implementing features touching unknown files, (4) understanding code relationships.
+  EVOLVING skill - reads CONTEXT.yaml for project-specific knowledge.
 ---
 
 # Code Investigation Methodology
 
-Systematic process for discovering all code related to a problem.
+Systematic, scientific process for discovering code related to a problem.
 
-## Phase 1: Problem Decomposition
+## Pre-Phase: Load Context
 
-Before searching, extract key elements:
+If `CONTEXT.yaml` exists in this skill folder:
+1. Load **core** patterns (always relevant)
+2. Load **domain** patterns matching the problem area
+3. Use accumulated knowledge to guide investigation
 
-1. **Identify keywords**
-   - Component/feature names mentioned
-   - Error messages or log strings
-   - Function/class names if provided
-   - Domain terms (auth, payment, cache, etc.)
+## Phase 1: Observe & Decompose
 
-2. **Determine problem type**
-   - Bug fix → find error source + all code paths that trigger it
-   - New feature → find integration points + similar implementations
-   - Refactor → find all usages + dependencies
-   - Performance → find hot paths + bottlenecks
+1. **State the problem clearly**
+   - Observed behavior vs expected behavior
+   - Error messages/symptoms
 
-3. **List questions to answer**
-   - Where does this behavior originate?
-   - What triggers this code path?
-   - What depends on this?
-   - Are there tests covering this?
+2. **Extract keywords**
+   - Component/feature names
+   - Error strings, function/class names
+   - Domain terms (auth, payment, cache)
 
-## Phase 2: Entry Point Discovery
+3. **Categorize problem type**
+   | Type | Focus |
+   |------|-------|
+   | Bug fix | Error source + trigger paths |
+   | New feature | Integration points + similar implementations |
+   | Refactor | All usages + dependencies |
 
-Search in order of specificity:
+## Phase 2: Hypothesize
 
-1. **Exact matches** (highest confidence)
+1. **Generate 2-3 hypotheses** about where the problem lives
    ```
-   Grep for: error messages, function names, class names
-   ```
-
-2. **Partial matches** (medium confidence)
-   ```
-   Grep for: partial terms, camelCase variants, snake_case variants
+   H1: Bug is in authentication middleware
+   H2: Bug is in session storage logic
+   H3: Bug is in request validation
    ```
 
-3. **Semantic matches** (requires reading)
-   ```
-   Grep for: domain terms, related concepts
-   ```
+2. **Rank by likelihood** (use CONTEXT.yaml patterns if available)
 
-4. **Structural search**
+3. **Define predictions** for each
    ```
-   Glob for: **/[Aa]uth*, **/[Cc]ache*, test files, config files
+   If H1 correct: should find auth code in stack trace
    ```
 
-## Phase 3: Dependency Mapping
+## Phase 3: Search & Gather Evidence
 
-From each entry point, trace:
+1. **Test hypotheses** through targeted search
+   - Grep for error messages, function names
+   - Glob for file patterns
 
-1. **Imports/requires** - What does this file depend on?
-2. **Exports/exposes** - What depends on this file?
-3. **Configuration** - What config files affect this?
-4. **Types/interfaces** - What contracts does this implement?
+2. **Record evidence**
+   | File | Supports | Contradicts | Notes |
+   |------|----------|-------------|-------|
 
-Build a dependency graph mentally:
-```
-entry_point.ts
-├── imports: utils.ts, types.ts, api.ts
-├── imported_by: handler.ts, controller.ts
-└── config: settings.json, .env
-```
+3. **Follow dependencies** from found files
 
-## Phase 4: Contextual Expansion
+## Phase 4: Analyze & Conclude
 
-Expand search to related areas:
+1. **Score hypotheses** (+2 strong for, -2 strong against)
+2. **Identify most supported hypothesis**
+3. **Note remaining uncertainty**
 
-1. **Test files** - Find `*.test.*`, `*.spec.*`, `__tests__/`
-2. **Mocks/fixtures** - Find test data that reveals expected behavior
-3. **Documentation** - Find inline docs, README sections
-4. **Similar patterns** - Search for analogous implementations
-5. **Error handling** - Find catch blocks, error boundaries
-6. **Logging** - Find log statements that reveal flow
+## Phase 5: Expand & Document
 
-## Phase 5: Impact Analysis
+1. **Find related files** (tests, mocks, docs)
+2. **Assess change impact** (dependents, coverage)
 
-Assess change impact:
+## Phase 6: Update Memory
 
-1. **Direct dependents** - Files that import the target
-2. **Indirect dependents** - Files that import the direct dependents
-3. **Test coverage** - Which tests exercise this code?
-4. **Build/deploy** - Does this affect build config, CI/CD?
+If learnings discovered, update CONTEXT.yaml:
+- Add to appropriate tier (core/domain/archive)
+- Set initial confidence
+- Link to evidence
 
 ## Output: Investigation Report
-
-Structure findings as:
 
 ```markdown
 # Investigation Report: [Problem Summary]
 
 ## Problem Statement
-[Restate the problem in your own words]
+[Observed vs expected]
 
-## Key Files (Ranked by Relevance)
+## Hypotheses Tested
+| Hypothesis | Prediction | Evidence | Result |
+|------------|------------|----------|--------|
+| H1: ... | Should find X | Found X | Supported |
 
-### Critical (Must Understand)
-- `path/to/file.ts` - [Why critical: main logic for X]
-- `path/to/other.ts` - [Why critical: handles Y]
+## Conclusion
+[Most supported hypothesis + confidence]
 
-### Important (Likely Affected)
-- `path/to/related.ts` - [Why: shares dependency Z]
+## Key Files (Ranked)
+### Critical
+- `path/to/file.ts:45` - [Why]
+### Important
+- `path/to/related.ts` - [Why]
 
-### Context (Helpful Background)
-- `path/to/types.ts` - [Why: defines interfaces]
-- `path/to/test.ts` - [Why: shows expected behavior]
+## Impact Assessment
+- Direct dependents: [list]
+- Test coverage: [status]
 
-## Code Flow
-[How the code executes for this problem]
-1. Entry: `handler.ts:45` receives request
-2. Calls: `service.ts:120` processes data
-3. Uses: `util.ts:30` for transformation
-4. Returns: response via `handler.ts:60`
-
-## Dependencies
-[Key dependencies affecting this code]
-
-## Potential Impact
-[What else might be affected by changes]
-
-## Recommendations
-[Suggested approach based on findings]
+## Learnings for Memory
+- [Pattern to remember]
 ```
 
 ## Guidelines
 
-- **Be thorough** - Miss nothing that could cause bugs
-- **Rank by relevance** - Not all files are equally important
-- **Explain WHY** - Don't just list files, explain their role
-- **Note uncertainty** - Flag areas that need more investigation
-- **Consider tests** - Always find related test files
+- **Be scientific** - Test hypotheses, don't just search randomly
+- **Record evidence** - Track what supports/contradicts each hypothesis
+- **Use context** - Check CONTEXT.yaml for project patterns
+- **Update memory** - Store learnings for future investigations
