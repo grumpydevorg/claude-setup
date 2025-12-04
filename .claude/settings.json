@@ -72,7 +72,8 @@
         "context7",
         "puppeteer",
         "sequential-thinking",
-        "mcp-deepwiki"
+        "mcp-deepwiki",
+        "memory"
     ],
     "hooks": {
         "PreToolUse": [],

@@ -18,6 +18,10 @@
     "mcp-deepwiki": {
       "command": "npx",
       "args": ["-y", "mcp-deepwiki@latest"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
     }
   }
 }
