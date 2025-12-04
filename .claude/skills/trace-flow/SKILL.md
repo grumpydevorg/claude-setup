@@ -4,7 +4,7 @@ description: >
   Traces code execution paths, data flow, and file interconnections with verification.
   Use when: (1) user asks "how does X work", (2) understanding call chains,
   (3) tracing request/response flow, (4) debugging execution order.
-  EVOLVING skill - uses memory MCP for known flows and patterns.
+  EVOLVING skill - uses file-based memory for known flows and patterns.
 ---
 
 # Code Flow Tracing Methodology
@@ -13,9 +13,9 @@ Systematic process for understanding code execution and data flow.
 
 ## Pre-Phase: Load Context
 
-Query memory MCP for known flows and architecture:
-```
-mcp__memory__search_nodes("<component or flow name>")
+Query memory for known flows and architecture:
+```bash
+memory query "<component or flow name>"
 ```
 Use existing knowledge to accelerate tracing.
 
@@ -91,17 +91,18 @@ Input: { user_id: 123 }
 
 ## Phase 7: Update Memory
 
-If new flows/patterns discovered, save to memory MCP:
+If new flows/patterns discovered, suggest memory commands:
+
+```markdown
+## Memory Update Suggestions
+- `memory create flow <name> "Entry: <entry point>"`
+- `memory add flow <name> "Path: A → B → C"`
 ```
-mcp__memory__create_entities([{
-  "name": "flow:<flow-name>",
-  "entityType": "flow",
-  "observations": [
-    "Entry: <entry point>",
-    "Path: A → B → C",
-    "<key insight>"
-  ]
-}])
+
+Example:
+```bash
+memory create flow auth-flow "Entry: POST /api/login → authController.login"
+memory add flow auth-flow "Validates credentials → generates JWT → sets cookie"
 ```
 
 ## Output: Flow Report

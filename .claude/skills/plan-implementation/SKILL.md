@@ -5,7 +5,7 @@ description: >
   Use when: (1) user needs a plan before coding, (2) complex multi-file changes,
   (3) user asks "how should I implement X", (4) after investigation/flow analysis,
   (5) architectural decisions needed, (6) breaking down large tasks.
-  EVOLVING skill - reads CONTEXT.yaml for project-specific patterns.
+  EVOLVING skill - uses file-based memory for project-specific patterns.
 ---
 
 # Implementation Planning Methodology
@@ -14,9 +14,11 @@ Systematic process for creating actionable implementation plans.
 
 ## Pre-Phase: Load Context
 
-Query memory MCP for project knowledge:
-```
-mcp__memory__search_nodes("<feature domain>")
+Query memory for project knowledge:
+```bash
+memory query "<feature domain>"
+memory list pattern
+memory list risk
 ```
 Use accumulated knowledge:
 - Past estimation accuracy → Calibrate new estimates
@@ -275,26 +277,24 @@ Structure the plan as:
 
 ## Phase 7: Update Memory
 
-After plan execution (success or failure), save to memory MCP:
+After plan execution (success or failure), suggest memory commands:
 
-```
-mcp__memory__create_entities([{
-  "name": "pattern:<what-was-learned>",
-  "entityType": "pattern",
-  "observations": [
-    "Approach: <what worked or failed>",
-    "Evidence: <commit or file reference>",
-    "Estimation: <actual vs planned>"
-  ]
-}])
+```markdown
+## Memory Update Suggestions
+- `memory create pattern <name> "Approach that worked: <details>"`
+- `memory create risk <name> "Risk discovered: <details>"`
 ```
 
-For risks discovered:
-```
-mcp__memory__add_observations([{
-  "entityName": "risk:<area>",
-  "contents": ["<risk description and mitigation>"]
-}])
+Example:
+```bash
+# What worked
+memory create pattern type-first "Always create types before implementations" --confidence 0.9
+
+# Risks found
+memory create risk migration-downtime "DB migrations require downtime - plan maintenance window"
+
+# Add evidence later
+memory add pattern type-first "Used successfully in auth refactor (commit abc123)"
 ```
 
 ## Guidelines

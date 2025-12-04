@@ -1,7 +1,7 @@
 ---
 name: memory
 description: >
-  Manages project memory using memory MCP tools.
+  Manages project memory using file-based CLI tool.
   Use when: (1) user says "update memory" or "save this pattern",
   (2) after investigations/planning to persist learnings,
   (3) user asks "what do we know about X",
@@ -10,30 +10,28 @@ description: >
 
 # Memory Management
 
-Manages persistent project knowledge using memory MCP tools.
+Manages persistent project knowledge using JSONL file-based system with CLI tool.
 
-## Memory MCP Tools
+## Memory CLI Commands
 
-| Tool | Purpose |
-|------|---------|
-| `mcp__memory__create_entities` | Create new knowledge nodes |
-| `mcp__memory__add_observations` | Add facts to existing nodes |
-| `mcp__memory__search_nodes` | Find relevant knowledge |
-| `mcp__memory__read_graph` | View all knowledge |
-| `mcp__memory__create_relations` | Link related nodes |
-| `mcp__memory__delete_entities` | Remove outdated nodes |
-| `mcp__memory__delete_observations` | Remove specific facts |
+| Command | Purpose |
+|---------|---------|
+| `memory create TYPE NAME "observation"` | Create new entity with first observation |
+| `memory add TYPE NAME "observation"` | Add observation to existing entity |
+| `memory query TERM` | Search all entities for term |
+| `memory show TYPE NAME` | Display full entity details |
+| `memory list [TYPE]` | List all entities, optionally filtered by type |
 
 ## Entity Types
 
 Create entities for different knowledge types:
 
 ```
-project:<name>         - Project-level patterns
-skill:<skill-name>     - Skill-specific learnings
-domain:<area>          - Domain knowledge (auth, api, db)
-pattern:<name>         - Reusable patterns discovered
-risk:<name>            - Known risks and gotchas
+project     - Project-level patterns and architecture
+domain      - Domain knowledge (auth, api, db)
+pattern     - Reusable patterns discovered
+flow        - Known execution flows and data paths
+risk        - Known risks and gotchas
 ```
 
 ## Phase 1: Capture Learning
@@ -63,102 +61,102 @@ After investigation/planning, identify what to save:
 ## Phase 2: Store in Memory
 
 ### Create Entity
+```bash
+memory create pattern route-structure "Routes defined in src/routes/"
+memory add pattern route-structure "Each route file exports Express router"
+memory add pattern route-structure "Naming convention: <resource>.routes.ts"
 ```
-mcp__memory__create_entities([
-  {
-    "name": "pattern:route-structure",
-    "entityType": "pattern",
-    "observations": [
-      "Routes defined in src/routes/",
-      "Each route file exports Express router",
-      "Naming convention: <resource>.routes.ts"
-    ]
-  }
-])
+
+With evidence and confidence:
+```bash
+memory create pattern type-first "Always create types before implementations" \
+  --evidence "src/types/" --confidence 0.9
 ```
 
 ### Add to Existing Entity
-```
-mcp__memory__add_observations([
-  {
-    "entityName": "project:myapp",
-    "contents": [
-      "Uses PostgreSQL with Prisma ORM",
-      "Migrations in prisma/migrations/"
-    ]
-  }
-])
-```
-
-### Create Relations
-```
-mcp__memory__create_relations([
-  {
-    "from": "pattern:route-structure",
-    "to": "domain:api",
-    "relationType": "belongs_to"
-  }
-])
+```bash
+memory add project myapp "Uses PostgreSQL with Prisma ORM"
+memory add project myapp "Migrations in prisma/migrations/" \
+  --evidence "prisma/migrations/"
 ```
 
 ## Phase 3: Query Memory
 
 Before investigation/planning, check existing knowledge:
 
+```bash
+memory query "auth"
+# Returns all entities related to authentication
+
+memory list pattern
+# Shows all pattern entities
+
+memory show pattern route-structure
+# Displays full entity with all observations
 ```
-mcp__memory__search_nodes("auth")
-→ Returns all nodes related to authentication
 
-mcp__memory__read_graph()
-→ Returns full knowledge graph
-```
+## Phase 4: Review and Organize
 
-## Phase 4: Consolidate
+Periodically review and maintain:
 
-Periodically review and clean up:
+1. **Review by type**
+   ```bash
+   memory list pattern    # Review all patterns
+   memory list risk       # Review all risks
+   memory list flow       # Review all flows
+   ```
 
-1. **Merge similar nodes**
-   - Find duplicates with `search_nodes`
-   - Combine observations
-   - Delete redundant nodes
+2. **Check specific areas**
+   ```bash
+   memory query "database"
+   memory query "authentication"
+   ```
 
-2. **Prune stale knowledge**
-   - Review nodes not accessed recently
-   - Delete outdated information
-   - Update changed patterns
-
-3. **Strengthen connections**
-   - Add missing relations
-   - Remove broken links
+3. **View details**
+   ```bash
+   memory show domain auth
+   # Shows full history of auth domain knowledge
+   ```
 
 ## Commands
 
 ### "Update memory"
 1. Review recent activity
 2. Identify learnings worth saving
-3. Create/update entities
-4. Confirm with user
+3. Suggest memory commands to user
+4. User executes commands
 
 ### "What do we know about X?"
-1. `search_nodes(X)`
+1. Run `memory query "X"`
 2. Format and present findings
 3. Note gaps in knowledge
 
-### "Consolidate memory"
-1. `read_graph()` full state
-2. Identify duplicates/stale nodes
-3. Propose cleanup
-4. Execute with user approval
-
-### "Forget X"
-1. `search_nodes(X)`
-2. Confirm deletion
-3. `delete_entities` or `delete_observations`
+### "Show me our patterns"
+1. Run `memory list pattern`
+2. For each interesting pattern: `memory show pattern <name>`
+3. Summarize findings
 
 ## Best Practices
 
 - **Be specific** - "auth uses JWT" > "auth stuff"
-- **Include evidence** - Reference files, commits
-- **Link related** - Create relations between nodes
-- **Prune regularly** - Remove outdated knowledge
-- **Namespace entities** - Use type prefixes (pattern:, domain:, etc.)
+- **Include evidence** - Use `--evidence` to reference files, commits
+- **Use confidence** - `--confidence 0.9` for well-proven patterns
+- **Organize by type** - Use correct entity type (pattern, domain, flow, risk)
+- **Accumulate observations** - Use `memory add` to build up knowledge over time
+
+## File Structure
+
+Memory is stored in `.claude/memory/` as JSONL files:
+
+```
+.claude/memory/
+├── project/claude-setup.jsonl
+├── pattern/route-structure.jsonl
+├── domain/auth.jsonl
+├── flow/login-flow.jsonl
+└── risk/cache-invalidation.jsonl
+```
+
+Each file contains:
+- Line 1: Entity metadata (id, type, created, confidence, use_count)
+- Lines 2+: Observations (content, added, evidence)

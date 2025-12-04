@@ -66,8 +66,10 @@ def main():
 Evolving skills used: {skills_list}
 
 Consider saving learnings with:
-- `mcp__memory__create_entities` - Create new knowledge nodes
-- `mcp__memory__add_observations` - Add patterns/learnings to existing nodes
+- `memory create TYPE NAME "observation"` - Create new knowledge entity
+- `memory add TYPE NAME "observation"` - Add to existing entity
+
+Types: project, domain, pattern, flow, risk
 
 Or say "update memory" to review and save discoveries.
 

@@ -4,7 +4,7 @@ description: >
   Deep codebase investigation using scientific method to find all files related to a problem.
   Use when: (1) user describes a bug or issue, (2) user asks "where is X handled",
   (3) implementing features touching unknown files, (4) understanding code relationships.
-  EVOLVING skill - uses memory MCP for project-specific knowledge.
+  EVOLVING skill - uses file-based memory for project-specific knowledge.
 ---
 
 # Code Investigation Methodology
@@ -13,9 +13,9 @@ Systematic, scientific process for discovering code related to a problem.
 
 ## Pre-Phase: Load Context
 
-Query memory MCP for existing project knowledge:
-```
-mcp__memory__search_nodes("<problem domain>")
+Query memory for existing project knowledge:
+```bash
+memory query "<problem domain>"
 ```
 Use accumulated patterns to guide investigation.
 
@@ -78,15 +78,19 @@ Use accumulated patterns to guide investigation.
 
 ## Phase 6: Update Memory
 
-If learnings discovered, save to memory MCP:
+If learnings discovered, suggest memory commands:
+
+```markdown
+## Memory Update Suggestions
+- `memory create pattern <name> "<what was learned>"`
+- `memory create domain <area> "<domain knowledge>"`
 ```
-mcp__memory__create_entities([{
-  "name": "pattern:<descriptive-name>",
-  "entityType": "pattern",
-  "observations": ["<what was learned>"]
-}])
+
+Example:
+```bash
+memory create pattern auth-middleware "Auth middleware in src/middleware/auth.ts"
+memory create domain auth "Uses JWT in httpOnly cookies"
 ```
-Link to related entities with `mcp__memory__create_relations`.
 
 ## Output: Investigation Report
 
