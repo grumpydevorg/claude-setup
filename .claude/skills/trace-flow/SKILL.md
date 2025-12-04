@@ -4,7 +4,7 @@ description: >
   Traces code execution paths, data flow, and file interconnections with verification.
   Use when: (1) user asks "how does X work", (2) understanding call chains,
   (3) tracing request/response flow, (4) debugging execution order.
-  EVOLVING skill - reads CONTEXT.yaml for known flows and patterns.
+  EVOLVING skill - uses memory MCP for known flows and patterns.
 ---
 
 # Code Flow Tracing Methodology
@@ -13,10 +13,11 @@ Systematic process for understanding code execution and data flow.
 
 ## Pre-Phase: Load Context
 
-If `CONTEXT.yaml` exists:
-1. Load known entry points and common flows
-2. Load architecture patterns
-3. Use to accelerate tracing
+Query memory MCP for known flows and architecture:
+```
+mcp__memory__search_nodes("<component or flow name>")
+```
+Use existing knowledge to accelerate tracing.
 
 ## Phase 1: Identify Flow Type & Entry Points
 
@@ -90,10 +91,18 @@ Input: { user_id: 123 }
 
 ## Phase 7: Update Memory
 
-If new flows/patterns discovered, update CONTEXT.yaml:
-- Add entry points
-- Record common flows
-- Note architectural patterns
+If new flows/patterns discovered, save to memory MCP:
+```
+mcp__memory__create_entities([{
+  "name": "flow:<flow-name>",
+  "entityType": "flow",
+  "observations": [
+    "Entry: <entry point>",
+    "Path: A → B → C",
+    "<key insight>"
+  ]
+}])
+```
 
 ## Output: Flow Report
 

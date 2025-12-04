@@ -14,14 +14,15 @@ Systematic process for creating actionable implementation plans.
 
 ## Pre-Phase: Load Context
 
-If `CONTEXT.yaml` exists in this skill folder:
-1. Load **core** patterns (always relevant)
-2. Load **domain** patterns matching the problem area
-3. Use accumulated knowledge:
-   - Past estimation accuracy → Calibrate new estimates
-   - Successful patterns → Reuse proven approaches
-   - Failed patterns → Avoid known pitfalls
-   - Risk history → Anticipate common risks
+Query memory MCP for project knowledge:
+```
+mcp__memory__search_nodes("<feature domain>")
+```
+Use accumulated knowledge:
+- Past estimation accuracy → Calibrate new estimates
+- Successful patterns → Reuse proven approaches
+- Failed patterns → Avoid known pitfalls
+- Risk history → Anticipate common risks
 
 ## Planning Principles
 
@@ -274,38 +275,26 @@ Structure the plan as:
 
 ## Phase 7: Update Memory
 
-After plan execution (success or failure), update CONTEXT.yaml:
+After plan execution (success or failure), save to memory MCP:
 
-1. **Record estimation accuracy**
-   - Planned vs actual complexity
-   - What caused divergence
-   - Calibration adjustments
+```
+mcp__memory__create_entities([{
+  "name": "pattern:<what-was-learned>",
+  "entityType": "pattern",
+  "observations": [
+    "Approach: <what worked or failed>",
+    "Evidence: <commit or file reference>",
+    "Estimation: <actual vs planned>"
+  ]
+}])
+```
 
-2. **Capture patterns**
-   - Approaches that worked well → successful_patterns
-   - Approaches that failed → failed_patterns
-   - New risks discovered → risks
-
-3. **Link to evidence**
-   - Reference specific commits or files
-   - Include confidence level
-
-```yaml
-# Example CONTEXT.yaml update
-core:
-  - id: pattern-001
-    type: pattern
-    content: "Always create types before implementations in TypeScript"
-    confidence: 0.9
-    evidence: ["plan-auth-feature", "plan-api-refactor"]
-
-domain:
-  auth:
-    - id: auth-risk-001
-      type: risk
-      content: "Session migration requires downtime - plan accordingly"
-      confidence: 0.85
-      evidence: ["incident-2024-03"]
+For risks discovered:
+```
+mcp__memory__add_observations([{
+  "entityName": "risk:<area>",
+  "contents": ["<risk description and mitigation>"]
+}])
 ```
 
 ## Guidelines

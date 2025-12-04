@@ -88,16 +88,15 @@ chmod +x .claude/hooks/task_medium_prep_hook.py
 ### 🧠 Skills (Full Methodology - Single Source of Truth)
 Skills contain complete methodologies and auto-trigger based on context.
 
-#### Evolving Skills (With Memory - CONTEXT.yaml)
-These skills learn and adapt to your specific project:
+#### Evolving Skills (With Memory MCP)
+These skills learn and adapt to your specific project using memory MCP:
 - **`investigate`**: Scientific investigation using hypothesis testing. Learns project structure, common patterns.
 - **`trace-flow`**: Execution/data flow tracing with verification phase. Learns architectural patterns.
 - **`plan-implementation`**: Planning with validation checkpoints. Learns estimation accuracy, risk patterns.
-- **`memory-management`**: Meta-skill for managing CONTEXT.yaml lifecycle across evolving skills.
+- **`memory`**: Meta-skill for managing memory (consolidate, review, prune).
 
 #### Static Skills (Universal Methodology)
 These skills use universal methods that don't change per project:
-- **`task-decomposition`**: Systematic task breakdown (functional, layer, workflow, risk-based strategies)
 - **`hypothesis-testing`**: Scientific debugging method (Observe → Hypothesize → Predict → Test → Analyze)
 - **`decision-making`**: Technical choice framework with evaluation matrices and ADR format
 - **`verification`**: Confirm changes work (unit, integration, system, regression levels)
@@ -216,17 +215,10 @@ claude-setup/
 ├── .claude/
 │   ├── settings.json          # Permissions and hook configuration
 │   ├── skills/                # FULL methodology (single source of truth)
-│   │   ├── investigate/       # EVOLVING - Scientific investigation
-│   │   │   ├── SKILL.md       # Hypothesis-testing methodology
-│   │   │   └── CONTEXT.yaml   # Project-specific patterns learned
-│   │   ├── trace-flow/        # EVOLVING - Code flow tracing
-│   │   │   ├── SKILL.md       # Flow tracing + verification
-│   │   │   └── CONTEXT.yaml   # Architectural patterns learned
-│   │   ├── plan-implementation/ # EVOLVING - Implementation planning
-│   │   │   ├── SKILL.md       # Planning + validation checkpoints
-│   │   │   └── CONTEXT.yaml   # Estimation calibration, risk patterns
-│   │   ├── memory-management/ # Meta-skill for CONTEXT.yaml lifecycle
-│   │   ├── task-decomposition/ # Systematic task breakdown
+│   │   ├── investigate/       # EVOLVING - uses memory MCP
+│   │   ├── trace-flow/        # EVOLVING - uses memory MCP
+│   │   ├── plan-implementation/ # EVOLVING - uses memory MCP
+│   │   ├── memory/            # Meta-skill for memory operations
 │   │   ├── hypothesis-testing/ # Scientific debugging method
 │   │   ├── decision-making/   # Technical choice framework
 │   │   ├── verification/      # Confirm changes work
@@ -243,7 +235,8 @@ claude-setup/
 │   │   ├── code-review.md     # Explicit review trigger
 │   │   └── commit.md          # Commit workflow
 │   └── hooks/
-│       └── task_medium_prep_hook.py  # Auto directory creation
+│       ├── task_medium_prep_hook.py  # Auto directory creation
+│       └── memory_prompt_hook.py     # Memory update prompts (Stop hook)
 ├── .mcp.json                  # MCP server configuration
 ├── claude-code-storage/       # Auto-generated task directories
 └── README.md
@@ -282,37 +275,30 @@ claude-setup/
 - **Agents**: Thin runtime config (tools, color) + pointer to skill
 - **Commands**: Explicit multi-agent orchestration (e.g., /task_medium chains 3 agents)
 
-### Memory Architecture (CONTEXT.yaml)
+### Memory Architecture (Memory MCP)
 
-Evolving skills use a tiered memory system stored in CONTEXT.yaml:
+Evolving skills use memory MCP tools for persistent project knowledge:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    CONTEXT.yaml                              │
+│                    Memory MCP                                │
 ├─────────────────────────────────────────────────────────────┤
-│  core:     ← Always loaded (highest value patterns)         │
-│    - "Entry points in src/routes/"                          │
-│    - "Tests use Jest + testing-library"                     │
-├─────────────────────────────────────────────────────────────┤
-│  domain:   ← Loaded when context matches                    │
-│    auth:                                                     │
-│      - "Auth middleware in src/middleware/"                 │
-│    database:                                                 │
-│      - "Prisma schema in prisma/schema.prisma"             │
-├─────────────────────────────────────────────────────────────┤
-│  archive:  ← Searchable but not auto-loaded                 │
-│    - "Legacy /old folder - rarely relevant"                 │
+│  mcp__memory__create_entities    → Create knowledge nodes   │
+│  mcp__memory__add_observations   → Add facts to nodes       │
+│  mcp__memory__search_nodes       → Query existing knowledge │
+│  mcp__memory__create_relations   → Link related nodes       │
+│  mcp__memory__delete_entities    → Remove outdated nodes    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Entry Types:**
-- `pattern`: Recurring code structure or architectural convention
-- `learning`: Discovery about how something works
-- `gotcha`: Non-obvious behavior or common mistake
-- `decision`: Past technical decision with rationale
-- `flow`: Documented execution path
+**Entity Types (namespaced):**
+- `pattern:<name>`: Recurring code structure
+- `flow:<name>`: Documented execution path
+- `domain:<area>`: Domain knowledge (auth, api, db)
+- `risk:<name>`: Known risks and gotchas
+- `project:<name>`: Project-level patterns
 
-**Memory Lifecycle:** Add → Update (confidence) → Promote/Demote → Prune → Consolidate
+**Memory Trigger:** Stop hook prompts for memory updates after evolving skills are used
 
 ### Settings Configuration
 
@@ -325,16 +311,8 @@ The `.claude/settings.json` file contains:
     "deny": [...]
   },
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "uv run .claude/hooks/task_medium_prep_hook.py"
-          }
-        ]
-      }
-    ]
+    "UserPromptSubmit": [...],  // Task directory setup
+    "Stop": [...]               // Memory update prompts
   },
   "enabledMcpjsonServers": ["context7", "puppeteer", "sequential-thinking", ...]
 }

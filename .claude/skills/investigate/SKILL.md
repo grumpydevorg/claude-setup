@@ -4,7 +4,7 @@ description: >
   Deep codebase investigation using scientific method to find all files related to a problem.
   Use when: (1) user describes a bug or issue, (2) user asks "where is X handled",
   (3) implementing features touching unknown files, (4) understanding code relationships.
-  EVOLVING skill - reads CONTEXT.yaml for project-specific knowledge.
+  EVOLVING skill - uses memory MCP for project-specific knowledge.
 ---
 
 # Code Investigation Methodology
@@ -13,10 +13,11 @@ Systematic, scientific process for discovering code related to a problem.
 
 ## Pre-Phase: Load Context
 
-If `CONTEXT.yaml` exists in this skill folder:
-1. Load **core** patterns (always relevant)
-2. Load **domain** patterns matching the problem area
-3. Use accumulated knowledge to guide investigation
+Query memory MCP for existing project knowledge:
+```
+mcp__memory__search_nodes("<problem domain>")
+```
+Use accumulated patterns to guide investigation.
 
 ## Phase 1: Observe & Decompose
 
@@ -77,10 +78,15 @@ If `CONTEXT.yaml` exists in this skill folder:
 
 ## Phase 6: Update Memory
 
-If learnings discovered, update CONTEXT.yaml:
-- Add to appropriate tier (core/domain/archive)
-- Set initial confidence
-- Link to evidence
+If learnings discovered, save to memory MCP:
+```
+mcp__memory__create_entities([{
+  "name": "pattern:<descriptive-name>",
+  "entityType": "pattern",
+  "observations": ["<what was learned>"]
+}])
+```
+Link to related entities with `mcp__memory__create_relations`.
 
 ## Output: Investigation Report
 
