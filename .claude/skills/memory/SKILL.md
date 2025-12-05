@@ -27,15 +27,71 @@ which memory || {
 
 If `which memory` fails during skill execution, run the installation command above.
 
+## Memory Scopes
+
+Memory operates in two scopes:
+
+**Project Scope** (default): `.claude/memory/`
+- Project-specific knowledge
+- Tracked in project's git repo
+- Use without `--global` flag
+
+**Global Scope**: `~/.claude/memory/`
+- Cross-project patterns and learnings
+- Tracked in separate git repo
+- Use with `--global` flag
+
+### When to Use Each Scope
+
+| Scope | Use For | Examples |
+|-------|---------|----------|
+| Project | Project-specific details | "Auth uses custom JWT middleware", "API endpoints in src/routes/" |
+| Global | Universal patterns | "Use Pydantic for validation", "Python typing best practices" |
+
 ## Memory CLI Commands
 
-| Command | Purpose |
-|---------|---------|
-| `memory create TYPE NAME "observation"` | Create new entity with first observation |
-| `memory add TYPE NAME "observation"` | Add observation to existing entity |
-| `memory query TERM` | Search all entities for term |
-| `memory show TYPE NAME` | Display full entity details |
-| `memory list [TYPE]` | List all entities, optionally filtered by type |
+| Command | Purpose | Scope Options |
+|---------|---------|---------------|
+| `memory create TYPE NAME "observation"` | Create new entity | `--global` |
+| `memory add TYPE NAME "observation"` | Add observation to entity | `--global` |
+| `memory query TERM` | Search entities | `--global`, `--project`, or both (default) |
+| `memory show TYPE NAME` | Display entity details | `--global` |
+| `memory list [TYPE]` | List entities | `--global`, `--project`, or both (default) |
+
+## Git Integration
+
+Both scopes are version controlled with git:
+
+**Project Memory**: `.claude/memory/`
+- Tracked in project's git repo
+- Commit memory changes with project changes
+- Share knowledge with team via git
+
+**Global Memory**: `~/.claude/memory/`
+- Separate git repo
+- Initialize once: `cd ~/.claude/memory && git init`
+- Optionally push to remote to sync across machines
+
+**Why Git instead of Archive?**
+- Git history preserves all deleted/changed memories
+- Use `git diff` to see memory evolution
+- Use `git revert` to restore old memories
+- Use `git blame` to track when learnings were added
+- Tag important memory milestones
+
+**Workflow:**
+```bash
+# After adding project memories
+git add .claude/memory/
+git commit -m "docs: add auth flow patterns"
+
+# Delete obsolete memories (git preserves history)
+rm .claude/memory/pattern/old-pattern.jsonl
+git commit -m "docs: remove deprecated pattern"
+
+# Restore if needed
+git checkout HEAD~1 -- .claude/memory/pattern/old-pattern.jsonl
+```
 
 ## Entity Types
 

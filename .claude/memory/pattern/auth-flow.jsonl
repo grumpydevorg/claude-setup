@@ -1,0 +1,2 @@
+{"type":"meta","id":"pattern:auth-flow","entity_type":"pattern","created":"2025-12-05T19:00:36.414915","confidence":0.7,"last_used":"2025-12-05T19:00:36.414915","use_count":1}
+{"type":"observation","content":"Uses JWT with httpOnly cookies","added":"2025-12-05T19:00:36.414915","evidence":null}

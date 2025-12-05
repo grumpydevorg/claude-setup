@@ -54,16 +54,19 @@ class Relation(BaseModel):
     created: datetime
 
 
-# === CONSTANTS ===
-
-MEMORY_DIR = Path(".claude/memory")
+# === CONSTANTS & HELPERS ===
 
 
-# === HELPERS ===
+def get_memory_dir(global_scope: bool = False) -> Path:
+    """Get memory directory based on scope."""
+    if global_scope:
+        return Path.home() / ".claude" / "memory"
+    return Path(".claude/memory")
 
 
-def entity_file(entity_type: EntityType, name: str) -> Path:
-    return MEMORY_DIR / entity_type.value / f"{name}.jsonl"
+def entity_file(entity_type: EntityType, name: str, global_scope: bool = False) -> Path:
+    """Get entity file path based on scope."""
+    return get_memory_dir(global_scope) / entity_type.value / f"{name}.jsonl"
 
 
 # === COMMANDS ===
@@ -81,16 +84,23 @@ def cli():
 @click.argument("observation")
 @click.option("--evidence", help="Evidence file/commit reference")
 @click.option("--confidence", type=float, default=0.7, help="Confidence 0.0-1.0")
+@click.option(
+    "--global",
+    "global_scope",
+    is_flag=True,
+    help="Store in global memory (~/.claude/memory)",
+)
 def create(
     entity_type: str,
     name: str,
     observation: str,
     evidence: Optional[str],
     confidence: float,
+    global_scope: bool,
 ):
     """Create new entity with first observation"""
     etype = EntityType(entity_type)
-    file_path = entity_file(etype, name)
+    file_path = entity_file(etype, name, global_scope)
 
     if file_path.exists():
         click.echo(f"Error: {etype.value}:{name} already exists", err=True)
@@ -123,10 +133,22 @@ def create(
 @click.argument("name")
 @click.argument("observation")
 @click.option("--evidence", help="Evidence file/commit reference")
-def add(entity_type: str, name: str, observation: str, evidence: Optional[str]):
+@click.option(
+    "--global",
+    "global_scope",
+    is_flag=True,
+    help="Use global memory (~/.claude/memory)",
+)
+def add(
+    entity_type: str,
+    name: str,
+    observation: str,
+    evidence: Optional[str],
+    global_scope: bool,
+):
     """Add observation to existing entity"""
     etype = EntityType(entity_type)
-    file_path = entity_file(etype, name)
+    file_path = entity_file(etype, name, global_scope)
 
     if not file_path.exists():
         click.echo(f"Error: {etype.value}:{name} not found", err=True)
@@ -152,37 +174,61 @@ def add(entity_type: str, name: str, observation: str, evidence: Optional[str]):
 
 @cli.command()
 @click.argument("search_term")
-def query(search_term: str):
-    """Search all entities"""
-    if not MEMORY_DIR.exists():
-        click.echo("No memory found")
-        return
+@click.option(
+    "--global", "global_scope", is_flag=True, help="Search only global memory"
+)
+@click.option(
+    "--project", "project_scope", is_flag=True, help="Search only project memory"
+)
+def query(search_term: str, global_scope: bool, project_scope: bool):
+    """Search all entities (searches both scopes by default)"""
+    # Determine which scopes to search
+    if not global_scope and not project_scope:
+        # Search both by default
+        scopes = [get_memory_dir(False), get_memory_dir(True)]
+    elif global_scope:
+        scopes = [get_memory_dir(True)]
+    else:
+        scopes = [get_memory_dir(False)]
 
     results = []
-    for jsonl_file in MEMORY_DIR.rglob("*.jsonl"):
-        content = jsonl_file.read_text()
-        if search_term.lower() in content.lower():
-            lines = content.splitlines()
-            if lines:
-                meta = json.loads(lines[0])
-                results.append(meta["id"])
+    for memory_dir in scopes:
+        if not memory_dir.exists():
+            continue
+
+        for jsonl_file in memory_dir.rglob("*.jsonl"):
+            content = jsonl_file.read_text()
+            if search_term.lower() in content.lower():
+                lines = content.splitlines()
+                if lines:
+                    meta = json.loads(lines[0])
+                    scope_label = (
+                        "global" if memory_dir == get_memory_dir(True) else "project"
+                    )
+                    results.append((meta["id"], scope_label))
 
     if not results:
         click.echo(f"No entities found matching '{search_term}'")
         return
 
     click.echo(f"Found {len(results)} entities:\n")
-    for entity_id in results:
-        click.echo(f"  {entity_id}")
+    for entity_id, scope in results:
+        click.echo(f"  [{scope}] {entity_id}")
 
 
 @cli.command()
 @click.argument("entity_type", type=click.Choice([t.value for t in EntityType]))
 @click.argument("name")
-def show(entity_type: str, name: str):
+@click.option(
+    "--global",
+    "global_scope",
+    is_flag=True,
+    help="Use global memory (~/.claude/memory)",
+)
+def show(entity_type: str, name: str, global_scope: bool):
     """Show full entity details"""
     etype = EntityType(entity_type)
-    file_path = entity_file(etype, name)
+    file_path = entity_file(etype, name, global_scope)
 
     if not file_path.exists():
         click.echo(f"Error: {etype.value}:{name} not found", err=True)
@@ -210,31 +256,43 @@ def show(entity_type: str, name: str):
 @click.argument(
     "entity_type", type=click.Choice([t.value for t in EntityType]), required=False
 )
-def list_cmd(entity_type: Optional[str]):
-    """List all entities, optionally filtered by type"""
-    if not MEMORY_DIR.exists():
-        click.echo("No memory found")
-        return
-
-    if entity_type:
-        dirs = [MEMORY_DIR / entity_type]
+@click.option("--global", "global_scope", is_flag=True, help="List only global memory")
+@click.option(
+    "--project", "project_scope", is_flag=True, help="List only project memory"
+)
+def list_cmd(entity_type: Optional[str], global_scope: bool, project_scope: bool):
+    """List all entities (lists both scopes by default)"""
+    # Determine which scopes to list
+    if not global_scope and not project_scope:
+        scopes = [(get_memory_dir(False), "project"), (get_memory_dir(True), "global")]
+    elif global_scope:
+        scopes = [(get_memory_dir(True), "global")]
     else:
-        dirs = [d for d in MEMORY_DIR.iterdir() if d.is_dir()]
+        scopes = [(get_memory_dir(False), "project")]
 
-    for dir_path in sorted(dirs):
-        if not dir_path.is_dir():
+    for memory_dir, scope_label in scopes:
+        if not memory_dir.exists():
             continue
 
-        files = [*dir_path.glob("*.jsonl")]
-        if not files:
-            continue
+        if entity_type:
+            dirs = [memory_dir / entity_type]
+        else:
+            dirs = [d for d in memory_dir.iterdir() if d.is_dir()]
 
-        click.echo(f"\n{dir_path.name}/")
-        for file_path in sorted(files):
-            lines = file_path.read_text().splitlines()
-            if lines:
-                meta = EntityMeta.model_validate_json(lines[0])
-                click.echo(f"  {meta.id} (confidence: {meta.confidence})")
+        for dir_path in sorted(dirs):
+            if not dir_path.is_dir():
+                continue
+
+            files = [*dir_path.glob("*.jsonl")]
+            if not files:
+                continue
+
+            click.echo(f"\n[{scope_label}] {dir_path.name}/")
+            for file_path in sorted(files):
+                lines = file_path.read_text().splitlines()
+                if lines:
+                    meta = EntityMeta.model_validate_json(lines[0])
+                    click.echo(f"  {meta.id} (confidence: {meta.confidence})")
 
 
 if __name__ == "__main__":
