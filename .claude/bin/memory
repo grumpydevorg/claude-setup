@@ -11,11 +11,12 @@ import click
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import Literal, Optional
 
 
 # === TYPES: Pydantic makes invalid states unrepresentable ===
+
 
 class EntityType(str, Enum):
     PROJECT = "project"
@@ -27,6 +28,7 @@ class EntityType(str, Enum):
 
 class EntityMeta(BaseModel):
     """Entity metadata - Pydantic validates all constraints"""
+
     type: Literal["meta"] = "meta"
     id: str
     entity_type: EntityType
@@ -38,6 +40,7 @@ class EntityMeta(BaseModel):
 
 class Observation(BaseModel):
     """Observation - Pydantic ensures content exists and is non-empty"""
+
     type: Literal["observation"] = "observation"
     content: str = Field(min_length=1)  # Can't be empty
     added: datetime
@@ -58,11 +61,13 @@ MEMORY_DIR = Path(".claude/memory")
 
 # === HELPERS ===
 
+
 def entity_file(entity_type: EntityType, name: str) -> Path:
     return MEMORY_DIR / entity_type.value / f"{name}.jsonl"
 
 
 # === COMMANDS ===
+
 
 @click.group()
 def cli():
@@ -76,7 +81,13 @@ def cli():
 @click.argument("observation")
 @click.option("--evidence", help="Evidence file/commit reference")
 @click.option("--confidence", type=float, default=0.7, help="Confidence 0.0-1.0")
-def create(entity_type: str, name: str, observation: str, evidence: Optional[str], confidence: float):
+def create(
+    entity_type: str,
+    name: str,
+    observation: str,
+    evidence: Optional[str],
+    confidence: float,
+):
     """Create new entity with first observation"""
     etype = EntityType(entity_type)
     file_path = entity_file(etype, name)
@@ -95,14 +106,10 @@ def create(entity_type: str, name: str, observation: str, evidence: Optional[str
         created=now,
         confidence=confidence,
         last_used=now,
-        use_count=1
+        use_count=1,
     )
 
-    obs = Observation(
-        content=observation,
-        added=now,
-        evidence=evidence
-    )
+    obs = Observation(content=observation, added=now, evidence=evidence)
 
     with file_path.open("w") as f:
         f.write(meta.model_dump_json() + "\n")
@@ -131,7 +138,9 @@ def add(entity_type: str, name: str, observation: str, evidence: Optional[str]):
     # Update meta (increment use_count, update last_used)
     lines = file_path.read_text().splitlines()
     meta = EntityMeta.model_validate_json(lines[0])
-    meta = meta.model_copy(update={"use_count": meta.use_count + 1, "last_used": datetime.now()})
+    meta = meta.model_copy(
+        update={"use_count": meta.use_count + 1, "last_used": datetime.now()}
+    )
 
     with file_path.open("w") as f:
         f.write(meta.model_dump_json() + "\n")
@@ -198,7 +207,9 @@ def show(entity_type: str, name: str):
 
 
 @cli.command(name="list")
-@click.argument("entity_type", type=click.Choice([t.value for t in EntityType]), required=False)
+@click.argument(
+    "entity_type", type=click.Choice([t.value for t in EntityType]), required=False
+)
 def list_cmd(entity_type: Optional[str]):
     """List all entities, optionally filtered by type"""
     if not MEMORY_DIR.exists():
