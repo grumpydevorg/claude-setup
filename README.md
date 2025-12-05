@@ -1,6 +1,6 @@
 # Claude Code Setup
 
-> A comprehensive configuration setup for Claude Code with Model Context Protocol (MCP) servers, custom commands, and automated workflows.
+> A comprehensive configuration setup for Claude Code with Model Context Protocol (MCP) servers, intelligent task routing, and automated workflows.
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-blue.svg)](https://claude.ai/code)
 [![MCP](https://img.shields.io/badge/MCP-Enabled-green.svg)](https://modelcontextprotocol.io/)
@@ -23,10 +23,11 @@
 
 This project provides a pre-configured environment for Claude Code with enhanced capabilities through:
 
-- **MCP Servers**: Context7, Puppeteer, Sequential Thinking, DeepWiki
-- **Custom Commands**: Intelligent workflows for commits, tasks, and problem-solving
-- **Hook System**: Automated directory management and workflow triggers
-- **Structured Workflows**: Organized task management with reporting and planning
+- **MCP Servers**: Context7, Puppeteer, DeepWiki
+- **Intelligent Task Routing**: Auto-complexity assessment for optimal workflow selection
+- **Custom Commands**: Workflows for commits, code review, and problem-solving
+- **Memory System**: File-based persistent knowledge with global and project scopes
+- **Hook System**: Automated memory prompts and workflow triggers
 
 ## Quick Start
 
@@ -38,8 +39,11 @@ pip install uv
 git clone <your-repo> claude-setup
 cd claude-setup
 
-# 3. Start using commands
-/task_medium implement user authentication
+# 3. Install memory CLI (optional but recommended)
+uv tool install .claude/bin/memory
+
+# 4. Start using commands - intelligent auto-routing!
+/task implement user authentication
 ```
 
 ## Prerequisites
@@ -73,89 +77,90 @@ uv --version
 cp -r .claude/ /your/project/
 cp .mcp.json /your/project/
 
+# Install memory CLI for persistent knowledge management
+uv tool install .claude/bin/memory
+
 # Ensure hook permissions
-chmod +x .claude/hooks/task_medium_prep_hook.py
+chmod +x .claude/hooks/memory_prompt_hook.py
 ```
 
 ## Features
 
 ### 🎯 Custom Commands (User-Invoked)
+- **`/task`**: Intelligent task routing with auto-complexity detection
 - **`/commit`**: Intelligent commit workflow with conventional standards
 - **`/code-review`**: Reviews uncommitted changes before committing
-- **`/task_medium`**: Advanced problem-solving with automated directory management
-- **`/task_easy`**: Simplified task workflow for lighter needs
 
 ### 🧠 Skills (Full Methodology - Single Source of Truth)
 Skills contain complete methodologies and auto-trigger based on context.
 
-#### Evolving Skills (With Memory MCP)
-These skills learn and adapt to your specific project using memory MCP:
-- **`investigate`**: Scientific investigation using hypothesis testing. Learns project structure, common patterns.
-- **`trace-flow`**: Execution/data flow tracing with verification phase. Learns architectural patterns.
-- **`plan-implementation`**: Planning with validation checkpoints. Learns estimation accuracy, risk patterns.
-- **`memory`**: Meta-skill for managing memory (consolidate, review, prune).
+#### Core Skills
+- **`task-routing`**: Automatic complexity assessment and workflow routing
+- **`investigate`**: Scientific investigation using hypothesis testing
+- **`trace-flow`**: Execution/data flow tracing with verification
+- **`plan-implementation`**: Planning with validation checkpoints
+- **`memory`**: Persistent knowledge management (project + global scopes)
 
-#### Static Skills (Universal Methodology)
-These skills use universal methods that don't change per project:
-- **`hypothesis-testing`**: Scientific debugging method (Observe → Hypothesize → Predict → Test → Analyze)
-- **`decision-making`**: Technical choice framework with evaluation matrices and ADR format
-- **`verification`**: Confirm changes work (unit, integration, system, regression levels)
-- **`review-quality`**: Comprehensive review checklist (correctness, security, maintainability, performance)
-- **`skill-creator`**: Meta-skill for creating new skills following Anthropic best practices
+#### Universal Skills
+- **`hypothesis-testing`**: Scientific debugging method
+- **`decision-making`**: Technical choice framework with ADR format
+- **`verification`**: Multi-level testing confirmation
+- **`review-quality`**: Comprehensive code review checklist
+- **`skill-creator`**: Meta-skill for creating new skills
 
 ### 🤖 Agents (Thin Runtime Config)
-Agents are lightweight wrappers that reference skills for their methodology:
-- **`investigator`**: Runs investigate skill with restricted tools → INVESTIGATION_REPORT.md
+Agents are lightweight wrappers that reference skills:
+- **`investigator`**: Runs investigate skill → INVESTIGATION_REPORT.md
 - **`code-flow-mapper`**: Runs trace-flow skill → FLOW_REPORT.md
 - **`planner`**: Runs plan-implementation skill → PLAN.md
 - **`code-reviewer`**: Runs review-quality skill with prioritized feedback
 
 ### 🔌 MCP Servers
 - **Context7**: Library documentation and code context
-- **Puppeteer**: Browser automation and web scraping  
-- **Sequential Thinking**: Advanced reasoning and problem-solving
+- **Puppeteer**: Browser automation and web scraping
 - **DeepWiki**: Repository documentation fetching
 
 ### ⚡ Hook System
-- **UserPromptSubmit**: Automatic directory creation for task workflows
+- **Stop Hook**: Prompts for memory updates after session completion
 - **Extensible**: Easy to add custom hooks for workflow automation
-- **Documentation**: [Hooks Reference](https://docs.anthropic.com/en/docs/claude-code/hooks) | [Hooks Guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide)
 
 ## Commands
 
-### `/task_medium` - Advanced Problem Solving
+### `/task` - Intelligent Task Routing
 
-Automated workflow for complex problem-solving with structured investigation and planning.
+Automatically assesses task complexity and routes to the appropriate workflow.
 
 **Usage:**
 ```bash
-/task_medium [problem description]
+/task [problem description]
 ```
 
-**Features:**
-- ✅ Automatic `claude-instance-{id}` directory creation
-- ✅ Sequential thinking for complex reasoning
-- ✅ Multi-agent workflow with specialized subagents
-- ✅ Codebase investigation with INVESTIGATION_REPORT.md generation
-- ✅ Code flow mapping with FLOW_REPORT.md analysis
-- ✅ Structured planning with PLAN.md output
-- ✅ Incremental instance numbering
-- ✅ Edge case handling and best practices focus
+**How It Works:**
+1. 🧠 Analyzes task characteristics (location, scope, type, certainty)
+2. 📊 Calculates complexity score using heuristics
+3. 🔀 Routes to optimal workflow:
+   - **Simple** (score ≤ 0): Direct problem-solving
+   - **Medium** (score 1-4): Light investigation then solve
+   - **Complex** (score ≥ 5): Multi-agent (investigator → flow-mapper → planner)
 
-**Example:**
+**Examples:**
+
 ```bash
-/task_medium implement user authentication system
+# Simple task (specific location) → Direct solve
+/task Add logging to the login function in src/auth/login.ts
+
+# Medium task (known domain) → Light investigation
+/task Refactor the authentication logic to use OAuth
+
+# Complex task (unknown location) → Multi-agent workflow
+/task Find and fix the memory leak in the application
 ```
 
-**Workflow:**
-1. 🔧 Hook detects `/task_medium` prompt
-2. 📁 Creates `claude-code-storage/claude-instance-{id}/` directory
-3. 🔍 Investigator agent analyzes codebase using sequential thinking
-4. 📄 Generates comprehensive INVESTIGATION_REPORT.md with related files
-5. 🗺️ Code-flow-mapper agent traces execution paths and file interconnections
-6. 📊 Generates detailed FLOW_REPORT.md with code relationships
-7. 📋 Planner agent reads both reports and creates comprehensive PLAN.md
-8. 👤 User reviews and approves plan
+**Complexity Indicators:**
+- **Location**: Specific file vs "find where..." vs unknown
+- **Scope**: Single file vs multi-component vs system-wide
+- **Type**: Add function vs refactor vs architectural redesign
+- **Certainty**: Confident vs "probably..." vs "no idea where"
 
 ### `/code-review` - Automated Code Review
 
@@ -168,7 +173,7 @@ Initiates code-reviewer agent to analyze uncommitted changes only.
 
 **Features:**
 - Focuses exclusively on uncommitted changes
-- Reviews modified files for quality, security, and maintainability
+- Reviews for quality, security, and maintainability
 - Provides prioritized feedback:
   - 🚨 Critical issues (must fix)
   - ⚠️ Warnings (should fix)
@@ -202,10 +207,6 @@ Streamlined commit workflow following conventional commit standards.
 /commit
 ```
 
-### `/task_easy` - Simplified Tasks
-
-Lightweight task workflow for simpler problem-solving needs.
-
 ## Configuration
 
 ### Directory Structure
@@ -214,31 +215,36 @@ Lightweight task workflow for simpler problem-solving needs.
 claude-setup/
 ├── .claude/
 │   ├── settings.json          # Permissions and hook configuration
-│   ├── skills/                # FULL methodology (single source of truth)
-│   │   ├── investigate/       # EVOLVING - uses memory MCP
-│   │   ├── trace-flow/        # EVOLVING - uses memory MCP
-│   │   ├── plan-implementation/ # EVOLVING - uses memory MCP
-│   │   ├── memory/            # Meta-skill for memory operations
-│   │   ├── hypothesis-testing/ # Scientific debugging method
-│   │   ├── decision-making/   # Technical choice framework
-│   │   ├── verification/      # Confirm changes work
-│   │   ├── review-quality/    # Comprehensive review checklist
-│   │   └── skill-creator/     # Meta-skill for creating skills
-│   ├── agents/                # THIN runtime config (tools + skill pointer)
+│   ├── bin/
+│   │   └── memory             # CLI for memory management
+│   ├── memory/                # Project-scoped knowledge storage
+│   │   ├── pattern/           # Code patterns
+│   │   ├── domain/            # Domain knowledge
+│   │   ├── flow/              # Execution flows
+│   │   └── risk/              # Known risks
+│   ├── skills/                # Full methodologies (single source of truth)
+│   │   ├── task-routing/      # Complexity assessment and routing
+│   │   ├── investigate/       # Scientific investigation
+│   │   ├── trace-flow/        # Flow tracing
+│   │   ├── plan-implementation/ # Planning methodology
+│   │   ├── memory/            # Memory management
+│   │   ├── hypothesis-testing/ # Scientific debugging
+│   │   ├── decision-making/   # Technical choices
+│   │   ├── verification/      # Testing confirmation
+│   │   ├── review-quality/    # Code review checklist
+│   │   └── skill-creator/     # Skill creation meta-skill
+│   ├── agents/                # Thin runtime config (tools + skill pointer)
 │   │   ├── investigator.md    # → uses investigate skill
 │   │   ├── code-flow-mapper.md # → uses trace-flow skill
 │   │   ├── planner.md         # → uses plan-implementation skill
 │   │   └── code-reviewer.md   # → uses review-quality skill
-│   ├── commands/              # Explicit orchestration
-│   │   ├── task_medium.md     # Chains: investigator → flow-mapper → planner
-│   │   ├── task_easy.md       # Simple task workflow
-│   │   ├── code-review.md     # Explicit review trigger
+│   ├── commands/              # User-invoked workflows
+│   │   ├── task.md            # Intelligent task routing
+│   │   ├── code-review.md     # Code review trigger
 │   │   └── commit.md          # Commit workflow
 │   └── hooks/
-│       ├── task_medium_prep_hook.py  # Auto directory creation
-│       └── memory_prompt_hook.py     # Memory update prompts (Stop hook)
+│       └── memory_prompt_hook.py  # Memory update prompts (Stop hook)
 ├── .mcp.json                  # MCP server configuration
-├── claude-code-storage/       # Auto-generated task directories
 └── README.md
 ```
 
@@ -273,30 +279,53 @@ claude-setup/
 
 - **Skills**: Single source of truth for HOW to do things (full methodology)
 - **Agents**: Thin runtime config (tools, color) + pointer to skill
-- **Commands**: Explicit multi-agent orchestration (e.g., /task_medium chains 3 agents)
+- **Commands**: Explicit orchestration (e.g., /task uses task-routing skill)
 
-### Memory Architecture (Memory MCP)
+### Memory Architecture (File-Based)
 
-Evolving skills use memory MCP tools for persistent project knowledge:
+File-based knowledge storage with two scopes:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Memory MCP                                │
+│                    Memory System                             │
 ├─────────────────────────────────────────────────────────────┤
-│  mcp__memory__create_entities    → Create knowledge nodes   │
-│  mcp__memory__add_observations   → Add facts to nodes       │
-│  mcp__memory__search_nodes       → Query existing knowledge │
-│  mcp__memory__create_relations   → Link related nodes       │
-│  mcp__memory__delete_entities    → Remove outdated nodes    │
+│  Project Scope:  .claude/memory/                            │
+│    - Project-specific knowledge                              │
+│    - Tracked in project git repo                             │
+│    - Use: memory create pattern <name> "observation"        │
+│                                                              │
+│  Global Scope:   ~/.claude/memory/                          │
+│    - Cross-project patterns and learnings                    │
+│    - Separate git repo for global knowledge                  │
+│    - Use: memory create --global pattern <name> "..."       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Entity Types (namespaced):**
-- `pattern:<name>`: Recurring code structure
-- `flow:<name>`: Documented execution path
+**CLI Commands:**
+```bash
+# Project scope (default)
+memory create pattern auth-flow "Uses JWT with httpOnly cookies"
+memory add pattern auth-flow "Refresh tokens in Redis"
+memory show pattern auth-flow
+
+# Global scope
+memory create --global pattern api-design "RESTful naming conventions"
+memory query "authentication"  # Searches both scopes
+memory list                     # Lists both scopes
+```
+
+**Entity Types:**
+- `pattern:<name>`: Recurring code patterns
 - `domain:<area>`: Domain knowledge (auth, api, db)
+- `flow:<name>`: Documented execution paths
 - `risk:<name>`: Known risks and gotchas
-- `project:<name>`: Project-level patterns
+- `project:<name>`: Project-level metadata
+
+**Git Integration:**
+- Project memories tracked in `.claude/memory/`
+- Global memories tracked in `~/.claude/memory/` (separate repo)
+- Git history IS the archive - use `git diff`, `git revert`
+- No separate archiving needed
 
 **Memory Trigger:** Stop hook prompts for memory updates after evolving skills are used
 
@@ -311,10 +340,14 @@ The `.claude/settings.json` file contains:
     "deny": [...]
   },
   "hooks": {
-    "UserPromptSubmit": [...],  // Task directory setup
-    "Stop": [...]               // Memory update prompts
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "uv run .claude/hooks/memory_prompt_hook.py"
+      }]
+    }]
   },
-  "enabledMcpjsonServers": ["context7", "puppeteer", "sequential-thinking", ...]
+  "enabledMcpjsonServers": ["context7", "puppeteer", "mcp-deepwiki"]
 }
 ```
 
@@ -332,6 +365,10 @@ The `.mcp.json` file defines server configurations:
     "puppeteer": {
       "command": "npx",
       "args": ["@puppeteer/claude-dev"]
+    },
+    "mcp-deepwiki": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/mcp-deepwiki"]
     }
   }
 }
@@ -341,20 +378,25 @@ The `.mcp.json` file defines server configurations:
 
 ### Common Issues
 
+**Memory CLI not found:**
+- Install globally: `uv tool install .claude/bin/memory`
+- Or use directly: `.claude/bin/memory <command>`
+- Verify installation: `which memory`
+
 **Hook not triggering:**
 - Ensure `uv` is installed and in PATH
-- Check script permissions: `chmod +x .claude/hooks/task_medium_prep_hook.py`
+- Check script permissions: `chmod +x .claude/hooks/memory_prompt_hook.py`
 - Verify hook configuration in `.claude/settings.json`
-
-**Directory creation fails:**
-- Check file system permissions
-- Ensure `claude-code-storage/` parent directory exists
-- Review hook script logs for error details
 
 **MCP servers not loading:**
 - Verify Node.js and npx are installed
 - Check `.mcp.json` configuration syntax
 - Ensure MCP packages are available via npx
+
+**Task routing incorrect:**
+- The task-routing skill learns from usage
+- Provide feedback if routing seems wrong
+- Check `.claude/skills/task-routing/SKILL.md` for heuristics
 
 ### Debug Mode
 
@@ -410,7 +452,7 @@ Follow methodology in `.claude/skills/your-skill/SKILL.md`.
 - Skills contain the **full methodology** (HOW to do it)
 - Agents are **thin** (tools + pointer to skill)
 - Put ALL trigger conditions in the `description` field
-- Under 500 lines in SKILL.md body
+- Keep under 500 lines in SKILL.md body
 
 **Resources:**
 - [Agent Skills Documentation](https://docs.claude.com/en/docs/claude-code/skills)
