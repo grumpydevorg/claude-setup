@@ -66,6 +66,15 @@
     "hooks": {
         "PreToolUse": [],
         "UserPromptSubmit": [],
-        "Stop": []
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "uv run .claude/hooks/memory_prompt_hook.py"
+                    }
+                ]
+            }
+        ]
     }
 }
