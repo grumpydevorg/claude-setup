@@ -1,7 +1,7 @@
 ---
 name: code-flow-mapper
 description: Traces execution paths and file interconnections
-tools: Glob, Grep, Read, Bash, mcp__sequential-thinking__sequentialthinking
+tools: Glob, Grep, Read, Bash
 color: yellow
 ---
 

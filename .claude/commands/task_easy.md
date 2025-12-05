@@ -1,5 +1,5 @@
-Use sequential-thinking mcp and all its tools that you will need about the problem and how to solve it. You must ultrathink for the solution and use reasoning.
+Think carefully and solve this problem step-by-step.
 
-You must consider edge cases and follow best coding practices for everything. Never do bandaid fixes.
+Consider edge cases and follow best coding practices. Never do bandaid fixes.
 
 Problem: $ARGUMENTS

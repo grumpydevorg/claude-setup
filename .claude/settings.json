@@ -41,25 +41,15 @@
             "mcp__gitlab__create_issue",
             "Bash(php:*)",
             "Bash(git rm:*)",
-            "mcp__sequential-thinking__sequentialthinking",
             "Bash(git checkout:*)",
             "Bash(git pull:*)",
             "Bash(sudo supervisorctl restart:*)",
             "WebFetch(domain:simple-bench.com)",
             "mcp__mcp-deepwiki__deepwiki_fetch",
             "WebFetch(domain:grafana.com)",
-            "mcp__memory__create_entities",
-            "mcp__memory__add_observations",
-            "mcp__memory__read_graph",
-            "mcp__memory__delete_entities",
-            "mcp__memory__search_nodes",
-            "mcp__memory__delete_observations",
-            "mcp__memory__search_nodes",
-            "mcp__memory__open_nodes",
             "mcp__ide__getDiagnostics",
             "Bash(diff:*)",
-            "Bash(git reset:*)",
-            "mcp__memory__create_relations"
+            "Bash(git reset:*)"
         ],
         "deny": [
             "Bash(npm run type-check:*)",
@@ -71,31 +61,11 @@
     "enabledMcpjsonServers": [
         "context7",
         "puppeteer",
-        "sequential-thinking",
-        "mcp-deepwiki",
-        "memory"
+        "mcp-deepwiki"
     ],
     "hooks": {
         "PreToolUse": [],
-        "UserPromptSubmit": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": ".claude/hooks/task_medium_prep_hook.py"
-                    }
-                ]
-            }
-        ],
-        "Stop": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": ".claude/hooks/memory_prompt_hook.py"
-                    }
-                ]
-            }
-        ]
+        "UserPromptSubmit": [],
+        "Stop": []
     }
 }

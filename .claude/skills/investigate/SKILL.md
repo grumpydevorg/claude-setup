@@ -46,7 +46,7 @@ Use accumulated patterns to guide investigation.
    H3: Bug is in request validation
    ```
 
-2. **Rank by likelihood** (use CONTEXT.yaml patterns if available)
+2. **Rank by likelihood** (use memory patterns if available)
 
 3. **Define predictions** for each
    ```
@@ -126,5 +126,5 @@ memory create domain auth "Uses JWT in httpOnly cookies"
 
 - **Be scientific** - Test hypotheses, don't just search randomly
 - **Record evidence** - Track what supports/contradicts each hypothesis
-- **Use context** - Check CONTEXT.yaml for project patterns
+- **Use context** - Query memory for project patterns
 - **Update memory** - Store learnings for future investigations

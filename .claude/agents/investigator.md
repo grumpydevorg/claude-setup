@@ -1,7 +1,7 @@
 ---
 name: investigator
 description: Code investigator that finds all files related to a problem
-tools: Glob, Grep, Read, Bash, mcp__sequential-thinking__sequentialthinking
+tools: Glob, Grep, Read, Bash
 color: cyan
 ---
 

@@ -1,3 +1,0 @@
-{"type":"meta","id":"project:claude-setup","entity_type":"project","created":"2025-12-05T00:08:04.336884","confidence":0.9,"last_used":"2025-12-05T00:08:17.755900","use_count":2}
-{"type":"observation","content":"Skills-based architecture with agents as thin wrappers","added":"2025-12-05T00:08:04.336884","evidence":null}
-{"type":"observation","content":"Memory system uses JSONL files for persistence","added":"2025-12-05T00:08:17.755702","evidence":".claude/memory/"}

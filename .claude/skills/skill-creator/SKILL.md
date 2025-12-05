@@ -163,59 +163,48 @@ Project-specific skills that learn and adapt:
 - **investigate**: Learns project structure, common patterns
 - **trace-flow**: Learns architectural patterns, data flows
 - **plan-implementation**: Learns estimation accuracy, risk patterns
-- **memory-management**: Meta-skill for managing memory
+- **memory**: Meta-skill for managing project memory
 
 Structure:
 ```
 .claude/skills/evolving-skill/
-├── SKILL.md              # Methodology + Pre-Phase: Load Context
-└── CONTEXT.yaml          # Tiered memory storage
+└── SKILL.md              # Methodology + Pre-Phase: Load Context
 ```
 
-### CONTEXT.yaml Structure
+Memory is stored in `.claude/memory/` using the memory MCP server.
 
-```yaml
-version: 1
-meta:
-  skill: investigate
-  total_entries: 15
-  prune_threshold: 50
+### Memory Integration Pattern
 
-core:           # Always loaded - highest value patterns
-  - id: core-001
-    type: pattern
-    content: "Entry points are in src/routes/"
-    confidence: 0.95
-    evidence: ["investigation-auth", "investigation-api"]
+Evolving skills use the memory CLI to load and store context:
 
-domain:         # Loaded when context matches
-  auth:
-    - id: auth-001
-      type: learning
-      content: "Auth middleware in src/middleware/auth.ts"
-      confidence: 0.9
-
-archive:        # Searchable but not auto-loaded
-  - id: arch-001
-    type: gotcha
-    content: "Legacy code in /old - do not use"
-    archived_from: core
-    reason: "Rarely relevant"
-
-relations:      # Links between entries
-  - from: core-001
-    to: auth-001
-    type: "contains"
+**Pre-Phase: Load Context**
+```bash
+memory query "<problem domain>"
 ```
 
-### Memory Lifecycle
+**Post-Phase: Store Learnings**
+```bash
+memory create pattern <name> "learned pattern"
+memory add domain <area> "domain knowledge"
+```
 
-1. **Add**: New patterns discovered during skill execution
-2. **Update**: Increase/decrease confidence based on validation
-3. **Promote**: Low-tier entries that prove valuable → higher tier
-4. **Demote**: Entries that prove less valuable → lower tier
-5. **Prune**: Remove low-confidence, unused entries
-6. **Consolidate**: Merge related entries, extract abstractions
+See `.claude/skills/memory/SKILL.md` for full memory management methodology.
+
+### Memory Entity Types
+
+```
+project     - Project-level patterns and architecture
+domain      - Domain knowledge (auth, api, db)
+pattern     - Reusable patterns discovered
+flow        - Known execution flows and data paths
+risk        - Known risks and gotchas
+```
+
+### Memory Storage
+
+Files stored in `.claude/memory/<type>/<name>.jsonl`:
+- Line 1: Entity metadata (id, type, created, confidence, use_count)
+- Lines 2+: Observations (content, added, evidence)
 
 ## Best Practices
 

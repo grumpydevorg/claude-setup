@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Creates detailed implementation plans from investigation and flow reports
-tools: Read, Write, mcp__sequential-thinking__sequentialthinking
+tools: Read, Write
 color: green
 ---
 

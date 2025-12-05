@@ -1,15 +1,11 @@
-Use sequential-thinking mcp and all its tools that you will need about the problem and how to solve it. You must ultrathink for the solution and use reasoning.
+Solve this complex problem using a systematic approach:
 
-You must consider edge cases and follow best coding practices for everything. Never do bandaid fixes.
+STEP 1: Launch investigator subagent to analyze the codebase and identify all related files.
 
-## Configuration
+STEP 2: Launch code-flow-mapper subagent to trace execution paths and dependencies.
 
-STEP 1: You must use the investigator subagent (pass to it the full path of the created claude-instance{id} directory) that returns you a "INVESTIGATION_REPORT.md" file.
+STEP 3: Launch planner subagent to create a detailed implementation plan based on the investigation and flow analysis.
 
-STEP 2: You must use the code-flow-mapper subagent (pass to it the full path of the created claude-instance{id} directory) that returns you a "FLOW_REPORT.md" file.
-
-STEP 3: You must use the planner subagent (pass to it the full path of the claude-instance directory that contains the 2 reports made by the 2 subagents) that reads both reports and creates a "PLAN.md".
-
-STEP 4: After all three subagents finish, enter plan mode and read the "PLAN.md" file and present the plan to the user so that they can either accept or adjust it.
+STEP 4: Enter plan mode and present the plan to the user for review and approval.
 
 Problem: $ARGUMENTS
